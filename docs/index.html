@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>xdna2-npu-experiments</title>
+<meta name="description" content="Experiments running neural network inference on the AMD XDNA 2 NPU.">
+<meta name="author" content="Denis Ryndine">
+<meta name="copyright" content="(c) 2026 Denis Ryndine, Ghost Intuit Pty Ltd">
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1d1d1f;
+    --muted: #5f6368;
+    --line: #dcdcd7;
+    --accent: #2b5d8a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101015;
+      --fg: #ececec;
+      --muted: #a0a4aa;
+      --line: #2e2e33;
+      --accent: #7fb0dc;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 64px 16px 48px;
+  }
+  header { margin-bottom: 40px; }
+  header img { display: block; width: 100%; max-width: 360px; height: auto; margin: 0 0 28px -8px; }
+  h1 { font-size: 1.9rem; line-height: 1.2; margin: 0; }
+  .sub { color: var(--muted); margin: 4px 0 0; }
+  h2 {
+    font-size: 1rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); margin: 40px 0 12px;
+    border-top: 1px solid var(--line); padding-top: 24px;
+  }
+  p { margin: 0 0 12px; }
+  a { color: var(--accent); }
+  ul { padding-left: 20px; margin: 0; }
+  footer { margin-top: 56px; color: var(--muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <picture>
+      <source srcset="assets/logo-dark.png" media="(prefers-color-scheme: dark)">
+      <img src="assets/logo-light.png" alt="Ghost Intuit logo" width="956" height="348">
+    </picture>
+    <div>
+      <h1>xdna2-npu-experiments</h1>
+      <p class="sub">Neural network inference on the AMD XDNA 2 NPU</p>
+    </div>
+  </header>
+
+  <p>Hello, and welcome.</p>
+  <p>This site collects experiments running neural network inference on
+  the AMD XDNA 2 NPU in Ryzen AI laptops, using the IRON / MLIR-AIE
+  toolchain and AMD's Vitis AI flow.</p>
+  <p>The work is in progress. Results and write-ups will be added here as
+  they are ready to share.</p>
+
+  <h2>Contents</h2>
+  <p>Coming soon.</p>
+
+  <h2>Author</h2>
+  <p>Denis Ryndine, Ghost Intuit Pty Ltd; postgraduate student, RMIT University.</p>
+
+  <h2>Licence and citation</h2>
+  <ul>
+    <li>Code: <a href="https://github.com/ghost-intuit/xdna2-npu-experiments/blob/main/LICENSE">Apache License 2.0</a></li>
+    <li>Documentation, figures and results: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></li>
+    <li>To cite this work, use <a href="https://github.com/ghost-intuit/xdna2-npu-experiments">Cite this repository</a> on GitHub.</li>
+  </ul>
+
+  <footer>
+    <a href="https://github.com/ghost-intuit/xdna2-npu-experiments">Source on GitHub</a>
+    · © 2026 Denis Ryndine
+  </footer>
+</main>
+</body>
+</html>
