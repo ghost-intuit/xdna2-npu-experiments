@@ -64,15 +64,21 @@
   padding: 2px 10px; cursor: pointer; }
 .cite button:hover { border-color: var(--accent); }
 
-/* Background artwork: beside the text column on wide screens only */
+/* Background artwork: beside the text column on wide screens only.
+   Text column and artwork are centred together as one group. */
 .art { display: none; }
 @media (min-width: 1100px) {
-  :root { --col-left: max(32px, 7vw); --col-w: 720px; }
+  :root {
+    --col-w: 720px;
+    --gap: 16px;
+    --art-w: min(700px, 92vh, calc(100vw - 800px));
+    --col-left: max(32px, calc((100vw - var(--col-w) - var(--gap) - var(--art-w)) / 2));
+  }
   main { margin-left: var(--col-left); position: relative; z-index: 1; }
   .art { display: block; position: fixed; z-index: 0; pointer-events: none;
     top: 50%; transform: translateY(-50%);
-    left: calc(var(--col-left) + var(--col-w) - 24px);
-    width: min(700px, calc(100vw - var(--col-left) - var(--col-w) + 8px), 92vh);
+    left: calc(var(--col-left) + var(--col-w) + var(--gap));
+    width: var(--art-w);
     aspect-ratio: 900 / 897;
     background: url(assets/artwork.webp) top left / contain no-repeat;
     opacity: 0.10;
