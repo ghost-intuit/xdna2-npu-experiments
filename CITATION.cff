@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "xdna2-npu-experiments"
+abstract: "Experiments running neural network inference on the AMD XDNA 2 NPU."
+type: software
+authors:
+  - family-names: "Ryndine"
+    given-names: "Denis"
+    email: "dry@ghostintuit.com"
+    affiliation: "Ghost Intuit Pty Ltd; RMIT University"
+repository-code: "https://github.com/ghost-intuit/xdna2-npu-experiments"
+url: "https://ghost-intuit.github.io/xdna2-npu-experiments"
+license: Apache-2.0
+version: "0.1.0"
+date-released: "2026-10-14"
+keywords:
+  - NPU
+  - XDNA 2
+  - IRON
+  - MLIR-AIE
+  - YOLO
