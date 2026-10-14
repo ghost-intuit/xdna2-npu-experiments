@@ -40,7 +40,7 @@
   header img { display: block; width: 100%; max-width: 360px; height: auto; margin: 0 0 28px -8px; }
   h1 { font-size: 1.9rem; line-height: 1.2; margin: 0; }
   .sub { color: var(--muted); margin: 4px 0 0; }
-  h2 {
+  main > h2 {
     font-size: 1rem; text-transform: uppercase; letter-spacing: 0.06em;
     color: var(--muted); margin: 40px 0 12px;
     border-top: 1px solid var(--line); padding-top: 24px;
@@ -49,6 +49,20 @@
   a { color: var(--accent); }
   ul { padding-left: 20px; margin: 0; }
   footer { margin-top: 56px; color: var(--muted); font-size: 0.9rem; }
+
+.cite { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin: 0 0 14px; }
+.cite h3 { font-size: 0.95rem; margin: 0 0 8px; }
+.cite .fmt { display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+  margin: 10px 0 4px; }
+.cite .apa { margin: 0; }
+.cite pre { margin: 0; font-size: 0.82rem; white-space: pre; overflow-x: auto;
+  background: var(--code, rgba(127,127,127,0.08)); border: 1px solid var(--line);
+  border-radius: 6px; padding: 8px 10px; }
+.cite button { font: inherit; font-size: 0.78rem; text-transform: none; letter-spacing: 0;
+  color: var(--accent); background: none; border: 1px solid var(--line); border-radius: 5px;
+  padding: 2px 10px; cursor: pointer; }
+.cite button:hover { border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -82,17 +96,64 @@
   <h2>Author</h2>
   <p>Denis Ryndine, Ghost Intuit Pty Ltd; postgraduate student, RMIT University.</p>
 
-  <h2>Licence and citation</h2>
+  <h2>Licence</h2>
   <ul>
     <li>Code: <a href="https://github.com/ghost-intuit/xdna2-npu-experiments/blob/main/LICENSE">Apache License 2.0</a></li>
     <li>Documentation, figures and results: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></li>
-    <li>To cite this work, use <a href="https://github.com/ghost-intuit/xdna2-npu-experiments">Cite this repository</a> on GitHub.</li>
   </ul>
+
+  <h2 id="cite">How to cite</h2>
+  <div class="cite">
+    <h3>The report</h3>
+    <div class="fmt"><span>APA</span><button type="button" data-copy="report-apa">Copy</button></div>
+    <p class="apa" id="report-apa">Ryndine, D. (2026). <em>Getting the TOPS: AMD XDNA 2 NPU on a Windows laptop, Vitis AI vs IRON</em> (Version 3.2) [Technical report]. Ghost Intuit Pty Ltd. https://ghost-intuit.github.io/xdna2-npu-experiments/getting-the-tops/</p>
+    <div class="fmt"><span>BibTeX</span><button type="button" data-copy="report-bib">Copy</button></div>
+    <pre id="report-bib">@techreport{ryndine2026tops,
+  author      = {Ryndine, Denis},
+  title       = {Getting the {TOPS}: {AMD} {XDNA} 2 {NPU} on a Windows laptop, {Vitis AI} vs {IRON}},
+  institution = {Ghost Intuit Pty Ltd},
+  type        = {Technical report},
+  year        = {2026},
+  month       = oct,
+  note        = {Version 3.2},
+  url         = {https://ghost-intuit.github.io/xdna2-npu-experiments/getting-the-tops/}
+}</pre>
+  </div>
+  <div class="cite">
+    <h3>The repository</h3>
+    <div class="fmt"><span>APA</span><button type="button" data-copy="repo-apa">Copy</button></div>
+    <p class="apa" id="repo-apa">Ryndine, D. (2026). <em>xdna2-npu-experiments</em> (Version 0.1.0) [Computer software]. https://github.com/ghost-intuit/xdna2-npu-experiments</p>
+    <div class="fmt"><span>BibTeX</span><button type="button" data-copy="repo-bib">Copy</button></div>
+    <pre id="repo-bib">@software{ryndine2026xdna2,
+  author  = {Ryndine, Denis},
+  title   = {xdna2-npu-experiments},
+  year    = {2026},
+  version = {0.1.0},
+  url     = {https://github.com/ghost-intuit/xdna2-npu-experiments}
+}</pre>
+  </div>
 
   <footer>
     <a href="https://github.com/ghost-intuit/xdna2-npu-experiments">Source on GitHub</a>
     · © 2026 Denis Ryndine
   </footer>
 </main>
+<script>
+document.querySelectorAll('.cite button[data-copy]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var el = document.getElementById(b.getAttribute('data-copy'));
+    var text = el.innerText.trim();
+    var done = function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 1500); };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+    } else { fallback(text); done(); }
+  });
+});
+function fallback(text) {
+  var t = document.createElement('textarea'); t.value = text; t.style.position = 'fixed';
+  t.style.opacity = '0'; document.body.appendChild(t); t.select();
+  try { document.execCommand('copy'); } catch (e) {} document.body.removeChild(t);
+}
+</script>
 </body>
 </html>
