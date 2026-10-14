@@ -63,9 +63,30 @@
   color: var(--accent); background: none; border: 1px solid var(--line); border-radius: 5px;
   padding: 2px 10px; cursor: pointer; }
 .cite button:hover { border-color: var(--accent); }
+
+/* Background artwork: beside the text column on wide screens only */
+.art { display: none; }
+@media (min-width: 1100px) {
+  :root { --col-left: max(32px, 7vw); --col-w: 720px; }
+  main { margin-left: var(--col-left); position: relative; z-index: 1; }
+  .art { display: block; position: fixed; z-index: 0; pointer-events: none;
+    top: 50%; transform: translateY(-50%);
+    left: calc(var(--col-left) + var(--col-w) - 24px);
+    width: min(700px, calc(100vw - var(--col-left) - var(--col-w) + 8px), 92vh);
+    aspect-ratio: 900 / 897;
+    background: url(assets/artwork.webp) top left / contain no-repeat;
+    opacity: 0.10;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 16%);
+            mask-image: linear-gradient(to right, transparent 0%, #000 16%); }
+}
+@media (min-width: 1100px) and (prefers-color-scheme: dark) {
+  .art { filter: invert(1); }
+}
+@media print { .art { display: none; } }
 </style>
 </head>
 <body>
+<div class="art" aria-hidden="true"></div>
 <main>
   <header>
     <picture>
