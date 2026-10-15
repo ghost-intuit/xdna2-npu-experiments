@@ -48,6 +48,7 @@
   p { margin: 0 0 12px; }
   a { color: var(--accent); }
   ul { padding-left: 20px; margin: 0; }
+  main > ul > li + li { margin-top: 10px; }
   footer { margin-top: 56px; color: var(--muted); font-size: 0.9rem; }
 
 .cite { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin: 0 0 14px; }
@@ -118,6 +119,11 @@
       (<a href="getting-the-tops/getting-the-tops-v3.2.pdf">PDF</a>).
       An experimental report comparing AMD's Vitis AI path with hand-written designs on the
       open IRON toolchain, on simple synthetic convolution networks.</li>
+    <li><a href="yolo-architecture/yolo_architecture.html">YOLOv8 architecture and per-block operations</a>
+      (<a href="yolo-architecture/yolo_ops_details.html">operations in detail</a>).
+      An interactive diagram of the YOLOv8 object detector, from input image through backbone, neck and
+      detection heads to the final boxes, with the mathematical operations, tensor shapes and
+      multiplication counts of each block for YOLOv8n at 640×640.</li>
   </ul>
 
   <h2>Author</h2>
