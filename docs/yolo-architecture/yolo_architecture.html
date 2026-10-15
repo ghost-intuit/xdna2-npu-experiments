@@ -315,5 +315,6 @@ document.querySelectorAll(".blk.on").forEach(b=>b.classList.remove("on"));
 if(e.classList.contains("blk"))e.classList.add("on");
 const [h,b]=I[e.dataset.k];const inf=document.getElementById("info");const grp=e.classList.contains("blk")?["p","t","c","g"].find(c=>e.classList.contains(c)):{backbone:"p",neck:"t",fpn:"t",pan:"t",heads:"c"}[e.dataset.k];inf.className=grp||"";const D=["input","stem","p2","p3","p4","p5","sppf","n4","o3","o4","o5","dh","h3","h4","h5","nms","out"];const lk=D.includes(e.dataset.k)?"<p class=\"inlink\"><a href=\"yolo_ops_details.html#"+e.dataset.k+"\">Detailed maths for this block →</a></p>":"";inf.innerHTML="<h2>"+h+"</h2>"+b+lk;}));
 </script>
+<script data-goatcounter="https://ghost-intuit.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
