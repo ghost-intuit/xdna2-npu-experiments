@@ -1,7 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="copyright" content="Created by Denis Ryndine with AI assistance (Claude Opus 5.5, Anthropic). CC BY 4.0."><title>YOLOv8n operations</title>
 <meta name="author" content="Denis Ryndine">
-<meta name="description" content="The mathematical operations of each YOLOv8n block at 640×640: every operation in execution order, with tensor shapes, multiplication counts and definitions.">
-<style>:root{--bg:#FFFFFF;--text:#1F1F1F;--muted:#5A5A5A;--border:#D9D9D9;
+<meta name="description" content="The mathematical operations of each YOLOv8n block at 640×640: every operation in execution order, with tensor shapes, multiplication counts and definitions."><style>:root{--bg:#FFFFFF;--text:#1F1F1F;--muted:#5A5A5A;--border:#D9D9D9;
 --pf:#ECF8D4;--ps:#4D7C0F;--pt:#365314;--tf:#CFE8E3;--ts:#1F7A6E;--tt:#0E3F39;
 --cf:#F7D4D0;--cs:#C8323E;--ct:#6E1820;--gf:#E8ECF2;--gs:#4A5A70;--gt:#26313F;color-scheme:light}
 body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -57,323 +56,70 @@ tr.h td{background:#FCFCFC}
 footer.cr{margin:24px 0 8px;padding-top:10px;border-top:1px solid #D9D9D9;font-size:12px;color:#5A5A5A}
 footer.cr p{margin:0;line-height:1.5}
 footer.cr a{color:#1E4E8C}
-.home{margin:2px 0 14px}.home a{display:inline-block}.home img{height:34px;width:auto;display:block}
-</style></head><body><div class="wrap">
-<p class="home"><a href="../" title="xdna2-npu-experiments home"><img src="../assets/logo-light.png" alt="Ghost Intuit: home" width="956" height="348"></a></p>
+.mctl{margin-right:6px}
+.prec{font-size:13px;margin:12px 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.prec .mctl{margin:0}.pnote{flex-basis:100%;font-size:12px;color:var(--muted)}
+.dat{font-size:13px;margin:8px 0 0;line-height:1.6;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px 10px}
+@media (max-width:520px){.mctl button{padding:5px 8px;font-size:12px}}
 
+.ref{font-size:11px;text-decoration:none;color:#1E4E8C;vertical-align:super;line-height:0}
+.refs{font-size:13px;line-height:1.55;padding-left:22px}.refs li{margin:0 0 6px}.refs a{word-break:break-all}
+.aud{font-size:13.5px;margin:0 0 10px;line-height:1.55;border-left:3px solid #D9D9D9;padding:2px 0 2px 10px;color:#3a3a3a}
+.fnote{font-style:italic;margin-top:1.2em}.fnote a{color:#1E4E8C}.figcap{font-size:12px;color:#5A5A5A;text-align:center;margin:8px 0 0}
+
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.bc{display:flex;flex-direction:column;gap:3px;border:1px solid var(--border);border-top:4px solid;border-radius:10px;padding:9px 11px;text-decoration:none;color:var(--text);font-size:12.5px;line-height:1.4;background:#fff}
+.bc:hover{background:#FAFAFA;box-shadow:0 0 0 1px #999 inset}
+.bc.p{border-top-color:#5E8C0A}.bc.t{border-top-color:#008A9E}.bc.c{border-top-color:#C8323E}.bc.g{border-top-color:#4A5A70}
+.bt{font-size:14px;font-weight:500}.bio{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--muted)}
+.bf{display:grid;grid-template-columns:auto 1fr;gap:0 10px;margin-top:4px;font-size:12px}.bf span:nth-child(odd){color:var(--muted)}
+.bf span:nth-child(even){text-align:right;font-variant-numeric:tabular-nums}
+.bl{font-weight:500;margin-top:4px;color:#1E4E8C}
+h2.grp{font-size:16px;margin:18px 0 8px}
+.home{margin:2px 0 14px}.home a{display:inline-block}.home img{height:34px;width:auto;display:block}
+</style></head><body>
+<div class="wrap">
+<p class="home"><a href="../" title="xdna2-npu-experiments home"><img src="../assets/logo-light.png" alt="Ghost Intuit: home" width="956" height="348"></a></p>
 <p class="back"><a href="yolo_architecture.html">← Back to the diagram</a></p>
-<h1>YOLOv8n: mathematical operations per block</h1>
-<p class="ver">Date: 15 October 2026, Version: 1.0, Last edit time: 22:19 AEDT, 15 October · pairs with yolo_architecture.html, version 1.0</p>
-<p class="lead">Each section lists the operations of one block of the architecture diagram, in execution order, with the YOLOv8n channel counts at a 640×640 input. Notation: x[c, i, j] is the value at channel c, row i, column j of a feature map; x is a block's input and y its output. The operations are defined in the <a href="#defs">table at the end</a>. Multiplication counts are computed from the layer shapes; exponentials, divisions and comparisons are not counted as multiplications.</p>
-<nav class="toc">
-<span class="tocg">Input:</span> <a href="#input">Input image</a><br>
-<span class="tocg">Backbone:</span> <a href="#stem">Stem</a> · <a href="#p2">Stage P2</a> · <a href="#p3">Stage P3</a> · <a href="#p4">Stage P4</a> · <a href="#p5">Stage P5</a> · <a href="#sppf">SPPF</a><br>
-<span class="tocg">Neck:</span> <a href="#n4">1 · N4</a> · <a href="#o3">2 · OUT3</a> · <a href="#o4">3 · OUT4</a> · <a href="#o5">4 · OUT5</a><br>
-<span class="tocg">Detection heads:</span> <a href="#dh">Inside each head</a> · <a href="#h3">Head P3</a> · <a href="#h4">Head P4</a> · <a href="#h5">Head P5</a><br>
-<span class="tocg">Decode and output:</span> <a href="#nms">Decode + NMS</a> · <a href="#out">Output</a><br>
-<a href="#defs">Definitions of operations</a></nav>
-<section id="mchart"><h2>Multiplications per block</h2><p class="lead">Convolution multiplications in each block of YOLOv8n at 640×640, as a share of all 4,371,456,000. Click a bar to open the block section. This is mathematical work; time on hardware also depends on how well each layer shape fits the device.</p><div class="mctl" role="group" aria-label="Order"><button type="button" data-o="exec" class="on">Execution order</button><button type="button" data-o="size">Largest first</button></div><div class="mleg"><span><i class="sw p"></i>Backbone: 1,577.8 million (36.1 %)</span><span><i class="sw t"></i>Neck: 983.0 million (22.5 %)</span><span><i class="sw c"></i>Detection heads: 1,810.6 million (41.4 %)</span></div><div id="mbars"></div><div id="mtip" role="tooltip"></div></section>
-<script>const MD=[{"k": "stem", "t": "Stem", "g": "p", "gn": "Backbone", "m": 44236800}, {"k": "p2", "t": "Stage P2", "g": "p", "gn": "Backbone", "m": 301465600}, {"k": "p3", "t": "Stage P3", "g": "p", "gn": "Backbone", "m": 432537600}, {"k": "p4", "t": "Stage P4", "g": "p", "gn": "Backbone", "m": 432537600}, {"k": "p5", "t": "Stage P5", "g": "p", "gn": "Backbone", "m": 301465600}, {"k": "sppf", "t": "SPPF", "g": "p", "gn": "Backbone", "m": 65536000}, {"k": "n4", "t": "1 · N4", "g": "t", "gn": "Neck", "m": 235929600}, {"k": "o3", "t": "2 · OUT3", "g": "t", "gn": "Neck", "m": 235929600}, {"k": "o4", "t": "3 · OUT4", "g": "t", "gn": "Neck", "m": 255590400}, {"k": "o5", "t": "4 · OUT5", "g": "t", "gn": "Neck", "m": 255590400}, {"k": "h3", "t": "Head P3", "g": "c", "gn": "Detection heads", "m": 1202585600}, {"k": "h4", "t": "Head P4", "g": "c", "gn": "Detection heads", "m": 433356800}, {"k": "h5", "t": "Head P5", "g": "c", "gn": "Detection heads", "m": 174694400}],MT=4371456000;const box=document.getElementById("mbars"),tip=document.getElementById("mtip"),mx=Math.max(...MD.map(x=>x.m));
-function fm(v){return (v/1e6).toLocaleString("en-US",{minimumFractionDigits:1,maximumFractionDigits:1})}
-function draw(o){const L=o==="size"?[...MD].sort((a,b)=>b.m-a.m):MD;box.innerHTML="";
-L.forEach(x=>{const a=document.createElement("a");a.className="mrow";a.href="#"+x.k;
-const pc=(100*x.m/MT).toFixed(1);
-a.innerHTML='<span class="mlab">'+x.t+'<span class="mgrp">'+x.gn+'</span></span><span class="mtrk"><span class="mbar '+x.g+'" style="width:'+(100*x.m/mx).toFixed(2)+'%"></span></span><span class="mval">'+fm(x.m)+' M · '+pc+' %</span>';
-a.addEventListener("mousemove",ev=>{tip.innerHTML="<b>"+x.t+"</b> ("+x.gn+")<br>"+x.m.toLocaleString("en-US")+" multiplications<br>"+pc+" % of the network";tip.style.display="block";const r=document.getElementById("mchart").getBoundingClientRect();tip.style.left=Math.max(0,Math.min(ev.clientX-r.left+14,r.width-220))+"px";tip.style.top=(ev.clientY-r.top+14)+"px"});
-a.addEventListener("mouseleave",()=>tip.style.display="none");box.appendChild(a)})}
-document.querySelectorAll(".mctl button").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".mctl button").forEach(c=>c.classList.toggle("on",c===b));draw(b.dataset.o)}));
-draw("exec");
-</script>
-<h2>Input</h2>
-<section class="card g" id="input"><h3>Input image</h3><p class="meta">host (letterbox) · image H×W×3 (BGR, 0–255) → 640×640×3 (RGB, 0–1)</p>
-<div class="formula">x′ = Resize<sub>g</sub>(image) &nbsp; (bilinear)<br>x″ = Pad<sub>114</sub>(x′) to 640×640<br>x = Reorder<sub>BGR→RGB</sub>(x″) / 255</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr><td>1</td><td style="padding-left:8px">Bilinear resize</td><td>gain g = min(640/H, 640/W)</td><td>round(gH)×round(gW)×3</td><td><span class="tag lin">linear</span></td><td class="n">—</td></tr>
-<tr><td>2</td><td style="padding-left:8px">Padding</td><td>value 114 around the resized image</td><td>640×640×3</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr><td>3</td><td style="padding-left:8px">Channel reorder</td><td>BGR → RGB</td><td>640×640×3</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr><td>4</td><td style="padding-left:8px">Scaling</td><td>divide by 255</td><td>640×640×3</td><td><span class="tag nl">non-linear</span></td><td class="n">0</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 1 resize · 1 pad · 1 reorder · 1 scaling.</p>
-<p class="note">Runs on the CPU, before the network. The resize's multiplications depend on the image size, so no count is given. Scaling is one division per value.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<h2>Backbone</h2>
-<section class="card p" id="stem"><h3>Stem</h3><p class="meta">model.0 · 640×640×3 → 320×320×16</p>
-<div class="formula">y = SiLU(Conv<sub>3×3, s2</sub><sup>3→16</sup>(x))</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr><td>1</td><td style="padding-left:8px">Convolution + bias</td><td>3×3, stride 2, pad 1, 3 → 16</td><td>320×320×16</td><td><span class="tag lin">linear</span></td><td class="n">44,236,800</td></tr>
-<tr><td>2</td><td style="padding-left:8px">SiLU</td><td>every value</td><td>320×320×16</td><td><span class="tag nl">non-linear</span></td><td class="n">1,638,400</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 1 convolution · 1 SiLU.<br><b>Multiplications in the convolutions:</b> 44,236,800.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<section class="card p" id="p2"><h3>Stage P2</h3><p class="meta">model.1 – model.2 · 320×320×16 → 160×160×32</p>
-<div class="formula">t = SiLU(Conv<sub>3×3, s2</sub><sup>16→32</sup>(x))<br>a | b = Split(SiLU(Conv<sub>1×1</sub><sup>32→32</sup>(t)))<br>m<sub>1</sub> = Bottleneck(b)<br>y = SiLU(Conv<sub>1×1</sub><sup>48→32</sup>(Concat(a, b, m<sub>1</sub>)))</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr><td>1</td><td style="padding-left:8px">Convolution + bias</td><td>3×3, stride 2, pad 1, 16 → 32</td><td>160×160×32</td><td><span class="tag lin">linear</span></td><td class="n">117,964,800</td></tr>
-<tr><td>2</td><td style="padding-left:8px">SiLU</td><td>every value</td><td>160×160×32</td><td><span class="tag nl">non-linear</span></td><td class="n">819,200</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>C2f, 1 bottleneck with residual add</b></td></tr>
-<tr><td>3</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 32 → 32</td><td>160×160×32</td><td><span class="tag lin">linear</span></td><td class="n">26,214,400</td></tr>
-<tr><td>4</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>160×160×32</td><td><span class="tag nl">non-linear</span></td><td class="n">819,200</td></tr>
-<tr><td>5</td><td style="padding-left:24px">Channel split</td><td>32 → 16 | 16 (a | b)</td><td>2 × 160×160×16</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:24px"><b>Bottleneck:</b></td></tr>
-<tr><td>6</td><td style="padding-left:40px">Convolution + bias, ×2</td><td>3×3, stride 1, pad 1, 16 → 16</td><td>160×160×16</td><td><span class="tag lin">linear</span></td><td class="n">58,982,400 each</td></tr>
-<tr><td>7</td><td style="padding-left:40px">SiLU, ×2</td><td>every value</td><td>160×160×16</td><td><span class="tag nl">non-linear</span></td><td class="n">409,600 each</td></tr>
-<tr><td>8</td><td style="padding-left:40px">Residual add</td><td>bottleneck input + result</td><td>160×160×16</td><td><span class="tag lin">linear</span></td><td class="n">0</td></tr>
-<tr><td>9</td><td style="padding-left:24px">Channel concatenation</td><td>a, b, m1: 3 × 16 → 48</td><td>160×160×48</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr><td>10</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 48 → 32</td><td>160×160×32</td><td><span class="tag lin">linear</span></td><td class="n">39,321,600</td></tr>
-<tr><td>11</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>160×160×32</td><td><span class="tag nl">non-linear</span></td><td class="n">819,200</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 5 convolutions · 5 SiLU · 1 residual add · 1 split · 1 concatenation.<br><b>Multiplications in the convolutions:</b> 301,465,600.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<section class="card p" id="p3"><h3>Stage P3</h3><p class="meta">model.3 – model.4 · 160×160×32 → B3 80×80×64</p>
-<div class="formula">t = SiLU(Conv<sub>3×3, s2</sub><sup>32→64</sup>(x))<br>a | b = Split(SiLU(Conv<sub>1×1</sub><sup>64→64</sup>(t)))<br>m<sub>1</sub> = Bottleneck(b) &nbsp; m<sub>2</sub> = Bottleneck(m<sub>1</sub>)<br>B3 = SiLU(Conv<sub>1×1</sub><sup>128→64</sup>(Concat(a, b, m<sub>1</sub>, m<sub>2</sub>)))</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr><td>1</td><td style="padding-left:8px">Convolution + bias</td><td>3×3, stride 2, pad 1, 32 → 64</td><td>80×80×64</td><td><span class="tag lin">linear</span></td><td class="n">117,964,800</td></tr>
-<tr><td>2</td><td style="padding-left:8px">SiLU</td><td>every value</td><td>80×80×64</td><td><span class="tag nl">non-linear</span></td><td class="n">409,600</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>C2f, 2 bottlenecks with residual add</b></td></tr>
-<tr><td>3</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 64 → 64</td><td>80×80×64</td><td><span class="tag lin">linear</span></td><td class="n">26,214,400</td></tr>
-<tr><td>4</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>80×80×64</td><td><span class="tag nl">non-linear</span></td><td class="n">409,600</td></tr>
-<tr><td>5</td><td style="padding-left:24px">Channel split</td><td>64 → 32 | 32 (a | b)</td><td>2 × 80×80×32</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:24px"><b>Bottleneck ×2, each:</b></td></tr>
-<tr><td>6</td><td style="padding-left:40px">Convolution + bias, ×2</td><td>3×3, stride 1, pad 1, 32 → 32</td><td>80×80×32</td><td><span class="tag lin">linear</span></td><td class="n">58,982,400 each</td></tr>
-<tr><td>7</td><td style="padding-left:40px">SiLU, ×2</td><td>every value</td><td>80×80×32</td><td><span class="tag nl">non-linear</span></td><td class="n">204,800 each</td></tr>
-<tr><td>8</td><td style="padding-left:40px">Residual add</td><td>bottleneck input + result</td><td>80×80×32</td><td><span class="tag lin">linear</span></td><td class="n">0</td></tr>
-<tr><td>9</td><td style="padding-left:24px">Channel concatenation</td><td>a, b, m1, m2: 4 × 32 → 128</td><td>80×80×128</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr><td>10</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 128 → 64</td><td>80×80×64</td><td><span class="tag lin">linear</span></td><td class="n">52,428,800</td></tr>
-<tr><td>11</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>80×80×64</td><td><span class="tag nl">non-linear</span></td><td class="n">409,600</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 7 convolutions · 7 SiLU · 2 residual adds · 1 split · 1 concatenation.<br><b>Multiplications in the convolutions:</b> 432,537,600.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<section class="card p" id="p4"><h3>Stage P4</h3><p class="meta">model.5 – model.6 · 80×80×64 → B4 40×40×128</p>
-<div class="formula">t = SiLU(Conv<sub>3×3, s2</sub><sup>64→128</sup>(x))<br>a | b = Split(SiLU(Conv<sub>1×1</sub><sup>128→128</sup>(t)))<br>m<sub>1</sub> = Bottleneck(b) &nbsp; m<sub>2</sub> = Bottleneck(m<sub>1</sub>)<br>B4 = SiLU(Conv<sub>1×1</sub><sup>256→128</sup>(Concat(a, b, m<sub>1</sub>, m<sub>2</sub>)))</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr><td>1</td><td style="padding-left:8px">Convolution + bias</td><td>3×3, stride 2, pad 1, 64 → 128</td><td>40×40×128</td><td><span class="tag lin">linear</span></td><td class="n">117,964,800</td></tr>
-<tr><td>2</td><td style="padding-left:8px">SiLU</td><td>every value</td><td>40×40×128</td><td><span class="tag nl">non-linear</span></td><td class="n">204,800</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>C2f, 2 bottlenecks with residual add</b></td></tr>
-<tr><td>3</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 128 → 128</td><td>40×40×128</td><td><span class="tag lin">linear</span></td><td class="n">26,214,400</td></tr>
-<tr><td>4</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>40×40×128</td><td><span class="tag nl">non-linear</span></td><td class="n">204,800</td></tr>
-<tr><td>5</td><td style="padding-left:24px">Channel split</td><td>128 → 64 | 64 (a | b)</td><td>2 × 40×40×64</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:24px"><b>Bottleneck ×2, each:</b></td></tr>
-<tr><td>6</td><td style="padding-left:40px">Convolution + bias, ×2</td><td>3×3, stride 1, pad 1, 64 → 64</td><td>40×40×64</td><td><span class="tag lin">linear</span></td><td class="n">58,982,400 each</td></tr>
-<tr><td>7</td><td style="padding-left:40px">SiLU, ×2</td><td>every value</td><td>40×40×64</td><td><span class="tag nl">non-linear</span></td><td class="n">102,400 each</td></tr>
-<tr><td>8</td><td style="padding-left:40px">Residual add</td><td>bottleneck input + result</td><td>40×40×64</td><td><span class="tag lin">linear</span></td><td class="n">0</td></tr>
-<tr><td>9</td><td style="padding-left:24px">Channel concatenation</td><td>a, b, m1, m2: 4 × 64 → 256</td><td>40×40×256</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr><td>10</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 256 → 128</td><td>40×40×128</td><td><span class="tag lin">linear</span></td><td class="n">52,428,800</td></tr>
-<tr><td>11</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>40×40×128</td><td><span class="tag nl">non-linear</span></td><td class="n">204,800</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 7 convolutions · 7 SiLU · 2 residual adds · 1 split · 1 concatenation.<br><b>Multiplications in the convolutions:</b> 432,537,600.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<section class="card p" id="p5"><h3>Stage P5</h3><p class="meta">model.7 – model.8 · 40×40×128 → 20×20×256</p>
-<div class="formula">t = SiLU(Conv<sub>3×3, s2</sub><sup>128→256</sup>(x))<br>a | b = Split(SiLU(Conv<sub>1×1</sub><sup>256→256</sup>(t)))<br>m<sub>1</sub> = Bottleneck(b)<br>y = SiLU(Conv<sub>1×1</sub><sup>384→256</sup>(Concat(a, b, m<sub>1</sub>)))</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr><td>1</td><td style="padding-left:8px">Convolution + bias</td><td>3×3, stride 2, pad 1, 128 → 256</td><td>20×20×256</td><td><span class="tag lin">linear</span></td><td class="n">117,964,800</td></tr>
-<tr><td>2</td><td style="padding-left:8px">SiLU</td><td>every value</td><td>20×20×256</td><td><span class="tag nl">non-linear</span></td><td class="n">102,400</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>C2f, 1 bottleneck with residual add</b></td></tr>
-<tr><td>3</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 256 → 256</td><td>20×20×256</td><td><span class="tag lin">linear</span></td><td class="n">26,214,400</td></tr>
-<tr><td>4</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>20×20×256</td><td><span class="tag nl">non-linear</span></td><td class="n">102,400</td></tr>
-<tr><td>5</td><td style="padding-left:24px">Channel split</td><td>256 → 128 | 128 (a | b)</td><td>2 × 20×20×128</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:24px"><b>Bottleneck:</b></td></tr>
-<tr><td>6</td><td style="padding-left:40px">Convolution + bias, ×2</td><td>3×3, stride 1, pad 1, 128 → 128</td><td>20×20×128</td><td><span class="tag lin">linear</span></td><td class="n">58,982,400 each</td></tr>
-<tr><td>7</td><td style="padding-left:40px">SiLU, ×2</td><td>every value</td><td>20×20×128</td><td><span class="tag nl">non-linear</span></td><td class="n">51,200 each</td></tr>
-<tr><td>8</td><td style="padding-left:40px">Residual add</td><td>bottleneck input + result</td><td>20×20×128</td><td><span class="tag lin">linear</span></td><td class="n">0</td></tr>
-<tr><td>9</td><td style="padding-left:24px">Channel concatenation</td><td>a, b, m1: 3 × 128 → 384</td><td>20×20×384</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr><td>10</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 384 → 256</td><td>20×20×256</td><td><span class="tag lin">linear</span></td><td class="n">39,321,600</td></tr>
-<tr><td>11</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>20×20×256</td><td><span class="tag nl">non-linear</span></td><td class="n">102,400</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 5 convolutions · 5 SiLU · 1 residual add · 1 split · 1 concatenation.<br><b>Multiplications in the convolutions:</b> 301,465,600.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<section class="card p" id="sppf"><h3>SPPF</h3><p class="meta">model.9 · 20×20×256 → S5 20×20×256</p>
-<div class="formula">t = SiLU(Conv<sub>1×1</sub><sup>256→128</sup>(x))<br>p<sub>1</sub> = MaxPool<sub>5×5</sub>(t), &nbsp; p<sub>2</sub> = MaxPool<sub>5×5</sub>(p<sub>1</sub>), &nbsp; p<sub>3</sub> = MaxPool<sub>5×5</sub>(p<sub>2</sub>)<br>S5 = SiLU(Conv<sub>1×1</sub><sup>512→256</sup>(Concat(t, p<sub>1</sub>, p<sub>2</sub>, p<sub>3</sub>)))</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr><td>1</td><td style="padding-left:8px">Convolution + bias</td><td>1×1, stride 1, pad 0, 256 → 128</td><td>20×20×128</td><td><span class="tag lin">linear</span></td><td class="n">13,107,200</td></tr>
-<tr><td>2</td><td style="padding-left:8px">SiLU</td><td>every value</td><td>20×20×128</td><td><span class="tag nl">non-linear</span></td><td class="n">51,200</td></tr>
-<tr><td>3</td><td style="padding-left:8px">Max-pool ×3, chained</td><td>5×5, stride 1, pad 2</td><td>20×20×128 each</td><td><span class="tag cmp">comparison</span></td><td class="n">0</td></tr>
-<tr><td>4</td><td style="padding-left:8px">Channel concatenation</td><td>input and 3 pooled maps: 4 × 128 → 512</td><td>20×20×512</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr><td>5</td><td style="padding-left:8px">Convolution + bias</td><td>1×1, stride 1, pad 0, 512 → 256</td><td>20×20×256</td><td><span class="tag lin">linear</span></td><td class="n">52,428,800</td></tr>
-<tr><td>6</td><td style="padding-left:8px">SiLU</td><td>every value</td><td>20×20×256</td><td><span class="tag nl">non-linear</span></td><td class="n">102,400</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 2 convolutions · 2 SiLU · 3 max-pools · 1 concatenation.<br><b>Multiplications in the convolutions:</b> 65,536,000.</p>
-<p class="note">Each max-pool output is the maximum of 25 values: 24 comparisons, no multiplications.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<h2>Neck</h2>
-<section class="card t" id="n4"><h3>1 · N4</h3><p class="meta">model.10 – model.12 · S5 20×20×256, B4 40×40×128 → N4 40×40×128</p>
-<div class="formula">u = Concat(Up<sub>×2</sub>(S5), B4)<br>a | b = Split(SiLU(Conv<sub>1×1</sub><sup>384→128</sup>(u)))<br>m<sub>1</sub> = Bottleneck<sub>no-res</sub>(b)<br>N4 = SiLU(Conv<sub>1×1</sub><sup>192→128</sup>(Concat(a, b, m<sub>1</sub>)))</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr><td>1</td><td style="padding-left:8px">Nearest upsample ×2</td><td>S5: 20×20 → 40×40</td><td>40×40×256</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr><td>2</td><td style="padding-left:8px">Channel concatenation</td><td>with B4: 256 + 128 → 384</td><td>40×40×384</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>C2f, 1 bottleneck, no residual add</b></td></tr>
-<tr><td>3</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 384 → 128</td><td>40×40×128</td><td><span class="tag lin">linear</span></td><td class="n">78,643,200</td></tr>
-<tr><td>4</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>40×40×128</td><td><span class="tag nl">non-linear</span></td><td class="n">204,800</td></tr>
-<tr><td>5</td><td style="padding-left:24px">Channel split</td><td>128 → 64 | 64 (a | b)</td><td>2 × 40×40×64</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:24px"><b>Bottleneck:</b></td></tr>
-<tr><td>6</td><td style="padding-left:40px">Convolution + bias, ×2</td><td>3×3, stride 1, pad 1, 64 → 64</td><td>40×40×64</td><td><span class="tag lin">linear</span></td><td class="n">58,982,400 each</td></tr>
-<tr><td>7</td><td style="padding-left:40px">SiLU, ×2</td><td>every value</td><td>40×40×64</td><td><span class="tag nl">non-linear</span></td><td class="n">102,400 each</td></tr>
-<tr><td>8</td><td style="padding-left:24px">Channel concatenation</td><td>a, b, m1: 3 × 64 → 192</td><td>40×40×192</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr><td>9</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 192 → 128</td><td>40×40×128</td><td><span class="tag lin">linear</span></td><td class="n">39,321,600</td></tr>
-<tr><td>10</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>40×40×128</td><td><span class="tag nl">non-linear</span></td><td class="n">204,800</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 4 convolutions · 4 SiLU · 1 upsample · 1 split · 2 concatenations.<br><b>Multiplications in the convolutions:</b> 235,929,600.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<section class="card t" id="o3"><h3>2 · OUT3</h3><p class="meta">model.13 – model.15 · N4 40×40×128, B3 80×80×64 → OUT3 80×80×64</p>
-<div class="formula">u = Concat(Up<sub>×2</sub>(N4), B3)<br>a | b = Split(SiLU(Conv<sub>1×1</sub><sup>192→64</sup>(u)))<br>m<sub>1</sub> = Bottleneck<sub>no-res</sub>(b)<br>OUT3 = SiLU(Conv<sub>1×1</sub><sup>96→64</sup>(Concat(a, b, m<sub>1</sub>)))</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr><td>1</td><td style="padding-left:8px">Nearest upsample ×2</td><td>N4: 40×40 → 80×80</td><td>80×80×128</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr><td>2</td><td style="padding-left:8px">Channel concatenation</td><td>with B3: 128 + 64 → 192</td><td>80×80×192</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>C2f, 1 bottleneck, no residual add</b></td></tr>
-<tr><td>3</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 192 → 64</td><td>80×80×64</td><td><span class="tag lin">linear</span></td><td class="n">78,643,200</td></tr>
-<tr><td>4</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>80×80×64</td><td><span class="tag nl">non-linear</span></td><td class="n">409,600</td></tr>
-<tr><td>5</td><td style="padding-left:24px">Channel split</td><td>64 → 32 | 32 (a | b)</td><td>2 × 80×80×32</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:24px"><b>Bottleneck:</b></td></tr>
-<tr><td>6</td><td style="padding-left:40px">Convolution + bias, ×2</td><td>3×3, stride 1, pad 1, 32 → 32</td><td>80×80×32</td><td><span class="tag lin">linear</span></td><td class="n">58,982,400 each</td></tr>
-<tr><td>7</td><td style="padding-left:40px">SiLU, ×2</td><td>every value</td><td>80×80×32</td><td><span class="tag nl">non-linear</span></td><td class="n">204,800 each</td></tr>
-<tr><td>8</td><td style="padding-left:24px">Channel concatenation</td><td>a, b, m1: 3 × 32 → 96</td><td>80×80×96</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr><td>9</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 96 → 64</td><td>80×80×64</td><td><span class="tag lin">linear</span></td><td class="n">39,321,600</td></tr>
-<tr><td>10</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>80×80×64</td><td><span class="tag nl">non-linear</span></td><td class="n">409,600</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 4 convolutions · 4 SiLU · 1 upsample · 1 split · 2 concatenations.<br><b>Multiplications in the convolutions:</b> 235,929,600.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<section class="card t" id="o4"><h3>3 · OUT4</h3><p class="meta">model.16 – model.18 · OUT3 80×80×64, N4 40×40×128 → OUT4 40×40×128</p>
-<div class="formula">u = Concat(SiLU(Conv<sub>3×3, s2</sub><sup>64→64</sup>(OUT3)), N4)<br>a | b = Split(SiLU(Conv<sub>1×1</sub><sup>192→128</sup>(u)))<br>m<sub>1</sub> = Bottleneck<sub>no-res</sub>(b)<br>OUT4 = SiLU(Conv<sub>1×1</sub><sup>192→128</sup>(Concat(a, b, m<sub>1</sub>)))</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr><td>1</td><td style="padding-left:8px">Convolution + bias</td><td>3×3, stride 2, pad 1, 64 → 64</td><td>40×40×64</td><td><span class="tag lin">linear</span></td><td class="n">58,982,400</td></tr>
-<tr><td>2</td><td style="padding-left:8px">SiLU</td><td>every value</td><td>40×40×64</td><td><span class="tag nl">non-linear</span></td><td class="n">102,400</td></tr>
-<tr><td>3</td><td style="padding-left:8px">Channel concatenation</td><td>with N4: 64 + 128 → 192</td><td>40×40×192</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>C2f, 1 bottleneck, no residual add</b></td></tr>
-<tr><td>4</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 192 → 128</td><td>40×40×128</td><td><span class="tag lin">linear</span></td><td class="n">39,321,600</td></tr>
-<tr><td>5</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>40×40×128</td><td><span class="tag nl">non-linear</span></td><td class="n">204,800</td></tr>
-<tr><td>6</td><td style="padding-left:24px">Channel split</td><td>128 → 64 | 64 (a | b)</td><td>2 × 40×40×64</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:24px"><b>Bottleneck:</b></td></tr>
-<tr><td>7</td><td style="padding-left:40px">Convolution + bias, ×2</td><td>3×3, stride 1, pad 1, 64 → 64</td><td>40×40×64</td><td><span class="tag lin">linear</span></td><td class="n">58,982,400 each</td></tr>
-<tr><td>8</td><td style="padding-left:40px">SiLU, ×2</td><td>every value</td><td>40×40×64</td><td><span class="tag nl">non-linear</span></td><td class="n">102,400 each</td></tr>
-<tr><td>9</td><td style="padding-left:24px">Channel concatenation</td><td>a, b, m1: 3 × 64 → 192</td><td>40×40×192</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr><td>10</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 192 → 128</td><td>40×40×128</td><td><span class="tag lin">linear</span></td><td class="n">39,321,600</td></tr>
-<tr><td>11</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>40×40×128</td><td><span class="tag nl">non-linear</span></td><td class="n">204,800</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 5 convolutions · 5 SiLU · 1 split · 2 concatenations.<br><b>Multiplications in the convolutions:</b> 255,590,400.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<section class="card t" id="o5"><h3>4 · OUT5</h3><p class="meta">model.19 – model.21 · OUT4 40×40×128, S5 20×20×256 → OUT5 20×20×256</p>
-<div class="formula">u = Concat(SiLU(Conv<sub>3×3, s2</sub><sup>128→128</sup>(OUT4)), S5)<br>a | b = Split(SiLU(Conv<sub>1×1</sub><sup>384→256</sup>(u)))<br>m<sub>1</sub> = Bottleneck<sub>no-res</sub>(b)<br>OUT5 = SiLU(Conv<sub>1×1</sub><sup>384→256</sup>(Concat(a, b, m<sub>1</sub>)))</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr><td>1</td><td style="padding-left:8px">Convolution + bias</td><td>3×3, stride 2, pad 1, 128 → 128</td><td>20×20×128</td><td><span class="tag lin">linear</span></td><td class="n">58,982,400</td></tr>
-<tr><td>2</td><td style="padding-left:8px">SiLU</td><td>every value</td><td>20×20×128</td><td><span class="tag nl">non-linear</span></td><td class="n">51,200</td></tr>
-<tr><td>3</td><td style="padding-left:8px">Channel concatenation</td><td>with S5: 128 + 256 → 384</td><td>20×20×384</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>C2f, 1 bottleneck, no residual add</b></td></tr>
-<tr><td>4</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 384 → 256</td><td>20×20×256</td><td><span class="tag lin">linear</span></td><td class="n">39,321,600</td></tr>
-<tr><td>5</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>20×20×256</td><td><span class="tag nl">non-linear</span></td><td class="n">102,400</td></tr>
-<tr><td>6</td><td style="padding-left:24px">Channel split</td><td>256 → 128 | 128 (a | b)</td><td>2 × 20×20×128</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:24px"><b>Bottleneck:</b></td></tr>
-<tr><td>7</td><td style="padding-left:40px">Convolution + bias, ×2</td><td>3×3, stride 1, pad 1, 128 → 128</td><td>20×20×128</td><td><span class="tag lin">linear</span></td><td class="n">58,982,400 each</td></tr>
-<tr><td>8</td><td style="padding-left:40px">SiLU, ×2</td><td>every value</td><td>20×20×128</td><td><span class="tag nl">non-linear</span></td><td class="n">51,200 each</td></tr>
-<tr><td>9</td><td style="padding-left:24px">Channel concatenation</td><td>a, b, m1: 3 × 128 → 384</td><td>20×20×384</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-<tr><td>10</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 384 → 256</td><td>20×20×256</td><td><span class="tag lin">linear</span></td><td class="n">39,321,600</td></tr>
-<tr><td>11</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>20×20×256</td><td><span class="tag nl">non-linear</span></td><td class="n">102,400</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 5 convolutions · 5 SiLU · 1 split · 2 concatenations.<br><b>Multiplications in the convolutions:</b> 255,590,400.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<h2>Detection heads</h2>
-<section class="card c" id="dh"><h3>Inside each head</h3><p class="meta">model.22 · neck output (C<sub>in</sub> = 64, 128 or 256) → 144 values per position</p>
-<div class="formula">box = Conv<sub>1×1</sub>(SiLU(Conv<sub>3×3</sub>(SiLU(Conv<sub>3×3</sub>(x)))))<br>cls = Conv<sub>1×1</sub>(SiLU(Conv<sub>3×3</sub>(SiLU(Conv<sub>3×3</sub>(x)))))<br>y = Concat(box, cls)</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>Box branch</b></td></tr>
-<tr><td>1</td><td style="padding-left:24px">Convolution + bias, then SiLU</td><td>3×3, C<sub>in</sub> → 64</td><td>H×W×64</td><td><span class="tag lin">linear</span></td><td class="n">—</td></tr>
-<tr><td>2</td><td style="padding-left:24px">Convolution + bias, then SiLU</td><td>3×3, 64 → 64</td><td>H×W×64</td><td><span class="tag lin">linear</span></td><td class="n">—</td></tr>
-<tr><td>3</td><td style="padding-left:24px">Convolution + bias (no activation)</td><td>1×1, 64 → 64</td><td>H×W×64</td><td><span class="tag lin">linear</span></td><td class="n">—</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>Class branch</b></td></tr>
-<tr><td>4</td><td style="padding-left:24px">Convolution + bias, then SiLU</td><td>3×3, C<sub>in</sub> → 80</td><td>H×W×80</td><td><span class="tag lin">linear</span></td><td class="n">—</td></tr>
-<tr><td>5</td><td style="padding-left:24px">Convolution + bias, then SiLU</td><td>3×3, 80 → 80</td><td>H×W×80</td><td><span class="tag lin">linear</span></td><td class="n">—</td></tr>
-<tr><td>6</td><td style="padding-left:24px">Convolution + bias (no activation)</td><td>1×1, 80 → 80</td><td>H×W×80</td><td><span class="tag lin">linear</span></td><td class="n">—</td></tr>
-<tr><td>7</td><td style="padding-left:8px">Channel concatenation</td><td>64 + 80 → 144</td><td>H×W×144</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 6 convolutions · 4 SiLU · 1 concatenation (per head).</p>
-<p class="note">The shared structure of Heads P3, P4 and P5; each has its own weights. Counts are given in each head's section.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<section class="card c" id="h3"><h3>Head P3</h3><p class="meta">model.22 (part) · OUT3 80×80×64 → 80×80×144</p>
-<div class="formula">box = Conv<sub>1×1</sub><sup>64→64</sup>(SiLU(Conv<sub>3×3</sub><sup>64→64</sup>(SiLU(Conv<sub>3×3</sub><sup>64→64</sup>(OUT3)))))<br>cls = Conv<sub>1×1</sub><sup>80→80</sup>(SiLU(Conv<sub>3×3</sub><sup>80→80</sup>(SiLU(Conv<sub>3×3</sub><sup>64→80</sup>(OUT3)))))<br>y = Concat(box, cls)</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>Box branch</b></td></tr>
-<tr><td>1</td><td style="padding-left:24px">Convolution + bias</td><td>3×3, stride 1, pad 1, 64 → 64</td><td>80×80×64</td><td><span class="tag lin">linear</span></td><td class="n">235,929,600</td></tr>
-<tr><td>2</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>80×80×64</td><td><span class="tag nl">non-linear</span></td><td class="n">409,600</td></tr>
-<tr><td>3</td><td style="padding-left:24px">Convolution + bias</td><td>3×3, stride 1, pad 1, 64 → 64</td><td>80×80×64</td><td><span class="tag lin">linear</span></td><td class="n">235,929,600</td></tr>
-<tr><td>4</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>80×80×64</td><td><span class="tag nl">non-linear</span></td><td class="n">409,600</td></tr>
-<tr><td>5</td><td style="padding-left:24px">Convolution + bias (no activation)</td><td>1×1, stride 1, pad 0, 64 → 64 (4 edges × 16 bins)</td><td>80×80×64</td><td><span class="tag lin">linear</span></td><td class="n">26,214,400</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>Class branch</b></td></tr>
-<tr><td>6</td><td style="padding-left:24px">Convolution + bias</td><td>3×3, stride 1, pad 1, 64 → 80</td><td>80×80×80</td><td><span class="tag lin">linear</span></td><td class="n">294,912,000</td></tr>
-<tr><td>7</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>80×80×80</td><td><span class="tag nl">non-linear</span></td><td class="n">512,000</td></tr>
-<tr><td>8</td><td style="padding-left:24px">Convolution + bias</td><td>3×3, stride 1, pad 1, 80 → 80</td><td>80×80×80</td><td><span class="tag lin">linear</span></td><td class="n">368,640,000</td></tr>
-<tr><td>9</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>80×80×80</td><td><span class="tag nl">non-linear</span></td><td class="n">512,000</td></tr>
-<tr><td>10</td><td style="padding-left:24px">Convolution + bias (no activation)</td><td>1×1, stride 1, pad 0, 80 → 80 (80 classes)</td><td>80×80×80</td><td><span class="tag lin">linear</span></td><td class="n">40,960,000</td></tr>
-<tr><td>11</td><td style="padding-left:8px">Channel concatenation</td><td>box 64 + class 80 → 144</td><td>80×80×144</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 6 convolutions · 4 SiLU · 1 concatenation.<br><b>Multiplications in the convolutions:</b> 1,202,585,600.</p>
-<p class="note">6,400 grid positions, each with 64 box values and 80 class values.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<section class="card c" id="h4"><h3>Head P4</h3><p class="meta">model.22 (part) · OUT4 40×40×128 → 40×40×144</p>
-<div class="formula">box = Conv<sub>1×1</sub><sup>64→64</sup>(SiLU(Conv<sub>3×3</sub><sup>64→64</sup>(SiLU(Conv<sub>3×3</sub><sup>128→64</sup>(OUT4)))))<br>cls = Conv<sub>1×1</sub><sup>80→80</sup>(SiLU(Conv<sub>3×3</sub><sup>80→80</sup>(SiLU(Conv<sub>3×3</sub><sup>128→80</sup>(OUT4)))))<br>y = Concat(box, cls)</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>Box branch</b></td></tr>
-<tr><td>1</td><td style="padding-left:24px">Convolution + bias</td><td>3×3, stride 1, pad 1, 128 → 64</td><td>40×40×64</td><td><span class="tag lin">linear</span></td><td class="n">117,964,800</td></tr>
-<tr><td>2</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>40×40×64</td><td><span class="tag nl">non-linear</span></td><td class="n">102,400</td></tr>
-<tr><td>3</td><td style="padding-left:24px">Convolution + bias</td><td>3×3, stride 1, pad 1, 64 → 64</td><td>40×40×64</td><td><span class="tag lin">linear</span></td><td class="n">58,982,400</td></tr>
-<tr><td>4</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>40×40×64</td><td><span class="tag nl">non-linear</span></td><td class="n">102,400</td></tr>
-<tr><td>5</td><td style="padding-left:24px">Convolution + bias (no activation)</td><td>1×1, stride 1, pad 0, 64 → 64 (4 edges × 16 bins)</td><td>40×40×64</td><td><span class="tag lin">linear</span></td><td class="n">6,553,600</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>Class branch</b></td></tr>
-<tr><td>6</td><td style="padding-left:24px">Convolution + bias</td><td>3×3, stride 1, pad 1, 128 → 80</td><td>40×40×80</td><td><span class="tag lin">linear</span></td><td class="n">147,456,000</td></tr>
-<tr><td>7</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>40×40×80</td><td><span class="tag nl">non-linear</span></td><td class="n">128,000</td></tr>
-<tr><td>8</td><td style="padding-left:24px">Convolution + bias</td><td>3×3, stride 1, pad 1, 80 → 80</td><td>40×40×80</td><td><span class="tag lin">linear</span></td><td class="n">92,160,000</td></tr>
-<tr><td>9</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>40×40×80</td><td><span class="tag nl">non-linear</span></td><td class="n">128,000</td></tr>
-<tr><td>10</td><td style="padding-left:24px">Convolution + bias (no activation)</td><td>1×1, stride 1, pad 0, 80 → 80 (80 classes)</td><td>40×40×80</td><td><span class="tag lin">linear</span></td><td class="n">10,240,000</td></tr>
-<tr><td>11</td><td style="padding-left:8px">Channel concatenation</td><td>box 64 + class 80 → 144</td><td>40×40×144</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 6 convolutions · 4 SiLU · 1 concatenation.<br><b>Multiplications in the convolutions:</b> 433,356,800.</p>
-<p class="note">1,600 grid positions, each with 64 box values and 80 class values.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<section class="card c" id="h5"><h3>Head P5</h3><p class="meta">model.22 (part) · OUT5 20×20×256 → 20×20×144</p>
-<div class="formula">box = Conv<sub>1×1</sub><sup>64→64</sup>(SiLU(Conv<sub>3×3</sub><sup>64→64</sup>(SiLU(Conv<sub>3×3</sub><sup>256→64</sup>(OUT5)))))<br>cls = Conv<sub>1×1</sub><sup>80→80</sup>(SiLU(Conv<sub>3×3</sub><sup>80→80</sup>(SiLU(Conv<sub>3×3</sub><sup>256→80</sup>(OUT5)))))<br>y = Concat(box, cls)</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>Box branch</b></td></tr>
-<tr><td>1</td><td style="padding-left:24px">Convolution + bias</td><td>3×3, stride 1, pad 1, 256 → 64</td><td>20×20×64</td><td><span class="tag lin">linear</span></td><td class="n">58,982,400</td></tr>
-<tr><td>2</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>20×20×64</td><td><span class="tag nl">non-linear</span></td><td class="n">25,600</td></tr>
-<tr><td>3</td><td style="padding-left:24px">Convolution + bias</td><td>3×3, stride 1, pad 1, 64 → 64</td><td>20×20×64</td><td><span class="tag lin">linear</span></td><td class="n">14,745,600</td></tr>
-<tr><td>4</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>20×20×64</td><td><span class="tag nl">non-linear</span></td><td class="n">25,600</td></tr>
-<tr><td>5</td><td style="padding-left:24px">Convolution + bias (no activation)</td><td>1×1, stride 1, pad 0, 64 → 64 (4 edges × 16 bins)</td><td>20×20×64</td><td><span class="tag lin">linear</span></td><td class="n">1,638,400</td></tr>
-<tr class="h"><td></td><td colspan="5" style="padding-left:8px"><b>Class branch</b></td></tr>
-<tr><td>6</td><td style="padding-left:24px">Convolution + bias</td><td>3×3, stride 1, pad 1, 256 → 80</td><td>20×20×80</td><td><span class="tag lin">linear</span></td><td class="n">73,728,000</td></tr>
-<tr><td>7</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>20×20×80</td><td><span class="tag nl">non-linear</span></td><td class="n">32,000</td></tr>
-<tr><td>8</td><td style="padding-left:24px">Convolution + bias</td><td>3×3, stride 1, pad 1, 80 → 80</td><td>20×20×80</td><td><span class="tag lin">linear</span></td><td class="n">23,040,000</td></tr>
-<tr><td>9</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>20×20×80</td><td><span class="tag nl">non-linear</span></td><td class="n">32,000</td></tr>
-<tr><td>10</td><td style="padding-left:24px">Convolution + bias (no activation)</td><td>1×1, stride 1, pad 0, 80 → 80 (80 classes)</td><td>20×20×80</td><td><span class="tag lin">linear</span></td><td class="n">2,560,000</td></tr>
-<tr><td>11</td><td style="padding-left:8px">Channel concatenation</td><td>box 64 + class 80 → 144</td><td>20×20×144</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 6 convolutions · 4 SiLU · 1 concatenation.<br><b>Multiplications in the convolutions:</b> 174,694,400.</p>
-<p class="note">400 grid positions, each with 64 box values and 80 class values.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<h2>Decode and output</h2>
-<section class="card g" id="nms"><h3>Decode + NMS</h3><p class="meta">host (after the network) · 3 head outputs, 8,400 positions × 144 → list of kept boxes</p>
-<div class="formula">d<sub>e</sub> = Σ<sub>k</sub> k · softmax(z<sub>e</sub>)<sub>k</sub> &nbsp; for e ∈ {left, top, right, bottom}<br>box = ((c<sub>x</sub> − d<sub>l</sub>)s, (c<sub>y</sub> − d<sub>t</sub>)s, (c<sub>x</sub> + d<sub>r</sub>)s, (c<sub>y</sub> + d<sub>b</sub>)s), &nbsp; score = max<sub>c</sub> σ(z<sub>c</sub>)<br>detections = NMS(boxes with score ≥ τ<sub>conf</sub>, τ<sub>IoU</sub>)</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr><td>1</td><td style="padding-left:8px">Softmax over 16 bins</td><td>each of 4 edges, every position</td><td>8,400 × 4 × 16</td><td><span class="tag nl">non-linear</span></td><td class="n">0</td></tr>
-<tr><td>2</td><td style="padding-left:8px">Expected distance (DFL)</td><td>weighted sum of bin indices 0–15</td><td>8,400 × 4</td><td><span class="tag lin">linear</span></td><td class="n">537,600</td></tr>
-<tr><td>3</td><td style="padding-left:8px">Sigmoid</td><td>80 class values, every position</td><td>8,400 × 80</td><td><span class="tag nl">non-linear</span></td><td class="n">0</td></tr>
-<tr><td>4</td><td style="padding-left:8px">Box from distances</td><td>cell centre ± distances, × stride</td><td>8,400 × 4</td><td><span class="tag lin">linear</span></td><td class="n">33,600</td></tr>
-<tr><td>5</td><td style="padding-left:8px">Confidence threshold</td><td>best class score ≥ τ<sub>conf</sub></td><td>kept candidates</td><td><span class="tag cmp">comparison</span></td><td class="n">0</td></tr>
-<tr><td>6</td><td style="padding-left:8px">Non-maximum suppression</td><td>sort by score; IoU against kept boxes; compare with τ<sub>IoU</sub></td><td>kept boxes</td><td><span class="tag cmp">comparison</span></td><td class="n">—</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 1 softmax and 1 expectation per edge · 1 sigmoid per class value · 1 box transform · 1 threshold · NMS.</p>
-<p class="note">Runs on the CPU. In the Ultralytics model the softmax, expectation and sigmoid sit inside the Detect layer; in this diagram they belong to Decode. Exponentials and divisions are not counted as multiplications. NMS work depends on how many boxes pass the threshold, so no count is given.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<section class="card g" id="out"><h3>Output</h3><p class="meta">host · kept boxes in 640×640 coordinates → boxes in original image coordinates</p>
-<div class="formula">x = (x′ − pad<sub>x</sub>) / g, &nbsp; y = (y′ − pad<sub>y</sub>) / g</div>
-<div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th></tr>
-<tr><td>1</td><td style="padding-left:8px">Undo the letterbox</td><td>subtract padding, divide by gain g</td><td>per box</td><td><span class="tag lin">linear</span></td><td class="n">0</td></tr>
-</table></div>
-<p class="tot"><b>Totals:</b> 1 coordinate transform per box.</p>
-<p class="note">Each detection: box (x1, y1, x2, y2), class and score. 4 subtractions and 4 divisions per box.</p>
-<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a> · <a href="#defs">Definitions</a></p></section>
-<p class="lead"><b>All 63 convolutions together:</b> 4,371,456,000 multiplications per 640×640 image. Counted as 2 operations per multiply-add, that is 8,742,912,000 ≈ 8.74 billion operations; <a href="https://docs.ultralytics.com/models/yolov8/">Ultralytics publishes 8.7 GFLOPs</a> for YOLOv8n at 640×640, which matches.</p>
-<h2 id="defs">Definitions of operations</h2><p class="lead">x is the input, y the output. C<sub>in</sub>, C<sub>out</sub>: input and output channels. H, W: rows and columns. Indices start at 0.</p><div class="tblwrap"><table class="defs"><tr><th>Operation</th><th>Definition</th><th>Notes</th></tr>
+<h1>YOLOv8n: operations, work and data per block</h1>
+<p class="ver">Date: 15 October 2026, Version: 1.4, Last edit time: 11:22 AEDT, 16 October · pairs with yolo_architecture.html, version 1.4</p>
+<p class="lead">An index of the blocks in the architecture diagram, for YOLOv8n at a 640×640 input. The chart compares the blocks; each block card opens a page with its structure, the memory it holds step by step, and every operation with its shapes and counts. The operations are defined in the <a href="#defs">table</a> below, with <a href="#sources">sources</a> at the end. All counts are computed from the YOLOv8n layer shapes <a class="ref" href="yolo_ops_details.html#ref1">[1]</a>.</p>
+<div class="prec"><b>Bytes shown for:</b> <span class="mctl" id="pctl"><button type="button" data-b="1">int8 (1 byte)</button><button type="button" data-b="2">bf16 / fp16 (2 bytes)</button><button type="button" data-b="4">fp32 (4 bytes)</button><button type="button" data-b="1.125">bfp16 (9 bytes per 8 values)</button></span><span class="pnote">Applies to every byte figure on this page and is remembered across pages. MB = 1,000,000 bytes. Weights are counted after batch normalisation is folded in: one weight per kernel entry plus one bias per output channel.</span><span class="pnote fnote">*Note: for the bf16 and bfp16 definitions, see AMD Quark documentation: <a href="https://quark.docs.amd.com/latest/onnx/tutorial_bf16_quantization.html">BF16 (bfloat16)</a> and <a href="https://quark.docs.amd.com/latest/pytorch/tutorial_bfp16.html">BFP16 (block floating point)</a>.</span></div>
+<section id="mchart"><h2>Work and data per block</h2><p class="lead" id="mlead"></p><div class="mctl" id="mmet" role="group" aria-label="Metric"><button type="button" data-m="m" class="on">Multiplications</button><button type="button" data-m="w">Weights</button><button type="button" data-m="a">Activations in + out</button></div> <div class="mctl" id="mord" role="group" aria-label="Order"><button type="button" data-o="exec" class="on">Execution order</button><button type="button" data-o="size">Largest first</button></div><div class="mleg" id="mleg"></div><div id="mbars"></div><div id="mtip" role="tooltip"></div><p class="figcap">Figure 2 – Work and data per block, YOLOv8n</p></section>
+<p class="lead" style="margin-top:12px"><b>Totals:</b> 4,371,456,000 multiplications, that is 8.74 billion operations counting 2 per multiply-add; Ultralytics publishes 8.7 GFLOPs <a class="ref" href="yolo_ops_details.html#ref2">[2]</a>. Weights: <span class="by" data-v="3151888">3,151,888 values</span>; before batch normalisation is folded in, as trained, the model has 3,157,200 parameters, matching the published 3.2 million <a class="ref" href="yolo_ops_details.html#ref2">[2]</a>.</p>
+<h2 style="margin-top:22px">Blocks</h2><p class="lead">Click a card to open the block page.</p>
+<h2 class="grp">Input</h2><div class="bgrid">
+<a class="bc g" href="yolo_block_input.html"><span class="bt">Input image</span><span class="bio">image H×W×3 (BGR, 0–255) → 640×640×3 (RGB, 0–1)</span><span>Resize · pad · scale · channel reorder</span><span class="bf"><span>Work</span><span>multiplications depend on image size</span></span><span class="bl">Open block page →</span></a>
+</div>
+<h2 class="grp">Backbone</h2><div class="bgrid">
+<a class="bc p" href="yolo_block_stem.html"><span class="bt">Stem</span><span class="bio">640×640×3 → 320×320×16</span><span>Conv 3×3 stride 2</span><span class="bf"><span>Multiplications</span><span>44.2 M</span><span>Weights</span><span class="byc" data-v="448"></span><span>Activations in + out</span><span class="byc" data-v="2867200"></span><span>Peak held at once</span><span class="byc" data-v="2867200"></span></span><span class="bl">Open block page →</span></a>
+<a class="bc p" href="yolo_block_p2.html"><span class="bt">Stage P2</span><span class="bio">320×320×16 → 160×160×32</span><span>Conv 3×3 stride 2 → C2f (1 bottleneck)</span><span class="bf"><span>Multiplications</span><span>301.5 M</span><span>Weights</span><span class="byc" data-v="11904"></span><span>Activations in + out</span><span class="byc" data-v="2457600"></span><span>Peak held at once</span><span class="byc" data-v="2457600"></span></span><span class="bl">Open block page →</span></a>
+<a class="bc p" href="yolo_block_p3.html"><span class="bt">Stage P3</span><span class="bio">160×160×32 → B3 80×80×64</span><span>Conv 3×3 stride 2 → C2f (2 bottlenecks)</span><span class="bf"><span>Multiplications</span><span>432.5 M</span><span>Weights</span><span class="byc" data-v="67904"></span><span>Activations in + out</span><span class="byc" data-v="1228800"></span><span>Peak held at once</span><span class="byc" data-v="1228800"></span></span><span class="bl">Open block page →</span></a>
+<a class="bc p" href="yolo_block_p4.html"><span class="bt">Stage P4</span><span class="bio">80×80×64 → B4 40×40×128</span><span>Conv 3×3 stride 2 → C2f (2 bottlenecks)</span><span class="bf"><span>Multiplications</span><span>432.5 M</span><span>Weights</span><span class="byc" data-v="270976"></span><span>Activations in + out</span><span class="byc" data-v="614400"></span><span>Peak held at once</span><span class="byc" data-v="614400"></span></span><span class="bl">Open block page →</span></a>
+<a class="bc p" href="yolo_block_p5.html"><span class="bt">Stage P5</span><span class="bio">40×40×128 → 20×20×256</span><span>Conv 3×3 stride 2 → C2f (1 bottleneck)</span><span class="bf"><span>Multiplications</span><span>301.5 M</span><span>Weights</span><span class="byc" data-v="754688"></span><span>Activations in + out</span><span class="byc" data-v="307200"></span><span>Peak held at once</span><span class="byc" data-v="307200"></span></span><span class="bl">Open block page →</span></a>
+<a class="bc p" href="yolo_block_sppf.html"><span class="bt">SPPF</span><span class="bio">20×20×256 → S5 20×20×256</span><span>Conv 1×1 → 3 chained max-pools → concat → Conv 1×1</span><span class="bf"><span>Multiplications</span><span>65.5 M</span><span>Weights</span><span class="byc" data-v="164224"></span><span>Activations in + out</span><span class="byc" data-v="204800"></span><span>Peak held at once</span><span class="byc" data-v="307200"></span></span><span class="bl">Open block page →</span></a>
+</div>
+<h2 class="grp">Neck</h2><div class="bgrid">
+<a class="bc t" href="yolo_block_n4.html"><span class="bt">1 · N4</span><span class="bio">S5 20×20×256, B4 40×40×128 → N4 40×40×128</span><span>Upsample S5 → concat B4 → C2f (no residual)</span><span class="bf"><span>Multiplications</span><span>235.9 M</span><span>Weights</span><span class="byc" data-v="147840"></span><span>Activations in + out</span><span class="byc" data-v="512000"></span><span>Peak held at once</span><span class="byc" data-v="819200"></span></span><span class="bl">Open block page →</span></a>
+<a class="bc t" href="yolo_block_o3.html"><span class="bt">2 · OUT3</span><span class="bio">N4 40×40×128, B3 80×80×64 → OUT3 80×80×64</span><span>Upsample N4 → concat B3 → C2f (no residual)</span><span class="bf"><span>Multiplications</span><span>235.9 M</span><span>Weights</span><span class="byc" data-v="37056"></span><span>Activations in + out</span><span class="byc" data-v="1024000"></span><span>Peak held at once</span><span class="byc" data-v="1638400"></span></span><span class="bl">Open block page →</span></a>
+<a class="bc t" href="yolo_block_o4.html"><span class="bt">3 · OUT4</span><span class="bio">OUT3 80×80×64, N4 40×40×128 → OUT4 40×40×128</span><span>Conv 3×3 stride 2 on OUT3 → concat N4 → C2f (no residual)</span><span class="bf"><span>Multiplications</span><span>255.6 M</span><span>Weights</span><span class="byc" data-v="160192"></span><span>Activations in + out</span><span class="byc" data-v="819200"></span><span>Peak held at once</span><span class="byc" data-v="716800"></span></span><span class="bl">Open block page →</span></a>
+<a class="bc t" href="yolo_block_o5.html"><span class="bt">4 · OUT5</span><span class="bio">OUT4 40×40×128, S5 20×20×256 → OUT5 20×20×256</span><span>Conv 3×3 stride 2 on OUT4 → concat S5 → C2f (no residual)</span><span class="bf"><span>Multiplications</span><span>255.6 M</span><span>Weights</span><span class="byc" data-v="639872"></span><span>Activations in + out</span><span class="byc" data-v="409600"></span><span>Peak held at once</span><span class="byc" data-v="358400"></span></span><span class="bl">Open block page →</span></a>
+</div>
+<h2 class="grp">Detection heads</h2><div class="bgrid">
+<a class="bc c" href="yolo_block_dh.html"><span class="bt">Inside each head</span><span class="bio">neck output (C<sub>in</sub> = 64, 128 or 256) → 144 values per position</span><span>Box branch and class branch, 3 convolutions each</span><span class="bf"><span>Work</span><span>see Heads P3–P5</span></span><span class="bl">Open block page →</span></a>
+<a class="bc c" href="yolo_block_h3.html"><span class="bt">Head P3</span><span class="bio">OUT3 80×80×64 → 80×80×144</span><span>Two branches of 3 convolutions → concat</span><span class="bf"><span>Multiplications</span><span>1,202.6 M</span><span>Weights</span><span class="byc" data-v="188336"></span><span>Activations in + out</span><span class="byc" data-v="1331200"></span><span>Peak held at once</span><span class="byc" data-v="1433600"></span></span><span class="bl">Open block page →</span></a>
+<a class="bc c" href="yolo_block_h4.html"><span class="bt">Head P4</span><span class="bio">OUT4 40×40×128 → 40×40×144</span><span>Two branches of 3 convolutions → concat</span><span class="bf"><span>Multiplications</span><span>433.4 M</span><span>Weights</span><span class="byc" data-v="271280"></span><span>Activations in + out</span><span class="byc" data-v="435200"></span><span>Peak held at once</span><span class="byc" data-v="435200"></span></span><span class="bl">Open block page →</span></a>
+<a class="bc c" href="yolo_block_h5.html"><span class="bt">Head P5</span><span class="bio">OUT5 20×20×256 → 20×20×144</span><span>Two branches of 3 convolutions → concat</span><span class="bf"><span>Multiplications</span><span>174.7 M</span><span>Weights</span><span class="byc" data-v="437168"></span><span>Activations in + out</span><span class="byc" data-v="160000"></span><span>Peak held at once</span><span class="byc" data-v="160000"></span></span><span class="bl">Open block page →</span></a>
+</div>
+<h2 class="grp">Decode and output</h2><div class="bgrid">
+<a class="bc g" href="yolo_block_nms.html"><span class="bt">Decode + NMS</span><span class="bio">3 head outputs, 8,400 positions × 144 → list of kept boxes</span><span>Softmax + expectation · sigmoid · box transform · threshold · NMS</span><span class="bf"><span>Work</span><span>0.6 million multiplications + NMS</span></span><span class="bl">Open block page →</span></a>
+<a class="bc g" href="yolo_block_out.html"><span class="bt">Output</span><span class="bio">kept boxes in 640×640 coordinates → boxes in original image coordinates</span><span>Undo the letterbox</span><span class="bf"><span>Work</span><span>8 operations per box</span></span><span class="bl">Open block page →</span></a>
+</div>
+<h2 id="defs" style="margin-top:26px">Definitions of operations</h2><p class="lead">x is the input, y the output. C<sub>in</sub>, C<sub>out</sub>: input and output channels. H, W: rows and columns. Indices start at 0.</p><div class="tblwrap"><table class="defs"><tr><th>Operation</th><th>Definition</th><th>Notes</th></tr>
 <tr><td>Convolution + bias<br>k×k, stride s, padding p</td><td>y[o, i, j] = b[o] + Σ<sub>c=0..C<sub>in</sub>−1</sub> Σ<sub>u=0..k−1</sub> Σ<sub>v=0..k−1</sub> w[o, c, u, v] · x[c, s·i + u − p, s·j + v − p]<br>H<sub>out</sub> = ⌊(H + 2p − k) / s⌋ + 1</td><td>x outside the map counts as 0. Each output value uses C<sub>in</sub>·k·k multiplications. 3×3 uses p = 1; 1×1 uses p = 0. Stride 2 halves H and W.</td></tr>
-<tr><td>Batch normalisation (folded into the convolution)</td><td>w′[o, …] = γ[o] / √(σ²[o] + ε) · w[o, …]<br>b′[o] = β[o] − γ[o] · μ[o] / √(σ²[o] + ε)</td><td>Done once, before inference. γ, β learned; μ, σ² training statistics. Afterwards only convolution + bias remains.</td></tr>
+<tr><td>Batch normalisation (folded into the convolution) <a class="ref" href="yolo_ops_details.html#ref3">[3]</a></td><td>w′[o, …] = γ[o] / √(σ²[o] + ε) · w[o, …]<br>b′[o] = β[o] − γ[o] · μ[o] / √(σ²[o] + ε)</td><td>Done once, before inference. γ, β learned; μ, σ² training statistics. Afterwards only convolution + bias remains.</td></tr>
 <tr><td>Sigmoid</td><td>σ(z) = 1 / (1 + e<sup>−z</sup>)</td><td>Output between 0 and 1. Used in SiLU and for the class scores.</td></tr>
-<tr><td>SiLU</td><td>SiLU(z) = z · σ(z) = z / (1 + e<sup>−z</sup>)</td><td>Applied to every value separately.</td></tr>
+<tr><td>SiLU <a class="ref" href="yolo_ops_details.html#ref4">[4]</a><a class="ref" href="yolo_ops_details.html#ref5">[5]</a></td><td>SiLU(z) = z · σ(z) = z / (1 + e<sup>−z</sup>)</td><td>Applied to every value separately.</td></tr>
 <tr><td>Residual add</td><td>y[c, i, j] = x[c, i, j] + f(x)[c, i, j]</td><td>f is the bottleneck's two convolutions. x and f(x) have equal shapes.</td></tr>
 <tr><td>Bottleneck</td><td>Bottleneck(x) = x + SiLU(Conv<sub>3×3</sub>(SiLU(Conv<sub>3×3</sub>(x))))<br>Bottleneck<sub>no-res</sub>(x) = SiLU(Conv<sub>3×3</sub>(SiLU(Conv<sub>3×3</sub>(x))))</td><td>Backbone C2f blocks use the first form, neck C2f blocks the second.</td></tr>
 <tr><td>C2f, n bottlenecks</td><td>a | b = Split(SiLU(Conv<sub>1×1</sub>(x)))<br>m<sub>1</sub> = Bottleneck(b), m<sub>k</sub> = Bottleneck(m<sub>k−1</sub>)<br>y = SiLU(Conv<sub>1×1</sub>(Concat(a, b, m<sub>1</sub>, …, m<sub>n</sub>)))</td><td>Every intermediate m<sub>k</sub> is kept and concatenated.</td></tr>
@@ -381,15 +127,40 @@ draw("exec");
 <tr><td>Channel concatenation</td><td>y[c, i, j] = x<sub>1</sub>[c, i, j] for c &lt; C<sub>1</sub>;<br>y[c, i, j] = x<sub>2</sub>[c − C<sub>1</sub>, i, j] for C<sub>1</sub> ≤ c &lt; C<sub>1</sub> + C<sub>2</sub>; and so on</td><td>Stacks maps of equal H and W along channels; no arithmetic.</td></tr>
 <tr><td>Max-pool k×k, stride 1, padding p</td><td>y[c, i, j] = max<sub>u, v = 0..k−1</sub> x[c, i + u − p, j + v − p]</td><td>x outside the map counts as −∞. SPPF uses k = 5, p = 2, so H and W are unchanged.</td></tr>
 <tr><td>Nearest upsample ×2</td><td>y[c, i, j] = x[c, ⌊i / 2⌋, ⌊j / 2⌋]</td><td>Each value is copied to a 2×2 area; no arithmetic.</td></tr>
-<tr><td>Bilinear resize, gain g</td><td>r = (i + 0.5) / g − 0.5, &nbsp; q = (j + 0.5) / g − 0.5, &nbsp; r<sub>0</sub> = ⌊r⌋, q<sub>0</sub> = ⌊q⌋, α = r − r<sub>0</sub>, β = q − q<sub>0</sub><br>y[c, i, j] = (1−α)(1−β)·x[c, r<sub>0</sub>, q<sub>0</sub>] + (1−α)β·x[c, r<sub>0</sub>, q<sub>0</sub>+1] + α(1−β)·x[c, r<sub>0</sub>+1, q<sub>0</sub>] + αβ·x[c, r<sub>0</sub>+1, q<sub>0</sub>+1]</td><td>A weighted average of the 4 nearest source values. g = min(640 / H, 640 / W).</td></tr>
+<tr><td>Bilinear resize, gain g <a class="ref" href="yolo_ops_details.html#ref7">[7]</a></td><td>r = (i + 0.5) / g − 0.5, &nbsp; q = (j + 0.5) / g − 0.5, &nbsp; r<sub>0</sub> = ⌊r⌋, q<sub>0</sub> = ⌊q⌋, α = r − r<sub>0</sub>, β = q − q<sub>0</sub><br>y[c, i, j] = (1−α)(1−β)·x[c, r<sub>0</sub>, q<sub>0</sub>] + (1−α)β·x[c, r<sub>0</sub>, q<sub>0</sub>+1] + α(1−β)·x[c, r<sub>0</sub>+1, q<sub>0</sub>] + αβ·x[c, r<sub>0</sub>+1, q<sub>0</sub>+1]</td><td>A weighted average of the 4 nearest source values. g = min(640 / H, 640 / W).</td></tr>
 <tr><td>Padding and scaling</td><td>y[c, i, j] = 114 outside the resized image; then y / 255</td><td>Padding fills the 640×640 canvas; scaling maps 0–255 to 0–1.</td></tr>
 <tr><td>Channel reorder</td><td>y[c, i, j] = x[2 − c, i, j]</td><td>BGR to RGB; no arithmetic.</td></tr>
-<tr><td>Softmax over 16 bins</td><td>p<sub>k</sub> = e<sup>z<sub>k</sub></sup> / Σ<sub>m=0..15</sub> e<sup>z<sub>m</sub></sup>, &nbsp; k = 0..15</td><td>For each box edge at each position. The p<sub>k</sub> are positive and sum to 1.</td></tr>
-<tr><td>Expected distance (DFL)</td><td>d = Σ<sub>k=0..15</sub> k · p<sub>k</sub></td><td>Distance from the cell centre to one box edge, in grid cells.</td></tr>
+<tr><td>Softmax over 16 bins <a class="ref" href="yolo_ops_details.html#ref6">[6]</a></td><td>p<sub>k</sub> = e<sup>z<sub>k</sub></sup> / Σ<sub>m=0..15</sub> e<sup>z<sub>m</sub></sup>, &nbsp; k = 0..15</td><td>For each box edge at each position. The p<sub>k</sub> are positive and sum to 1.</td></tr>
+<tr><td>Expected distance (DFL) <a class="ref" href="yolo_ops_details.html#ref6">[6]</a></td><td>d = Σ<sub>k=0..15</sub> k · p<sub>k</sub></td><td>Distance from the cell centre to one box edge, in grid cells.</td></tr>
 <tr><td>Box from distances</td><td>c<sub>x</sub> = j + 0.5, c<sub>y</sub> = i + 0.5<br>x<sub>1</sub> = (c<sub>x</sub> − d<sub>l</sub>)·s, y<sub>1</sub> = (c<sub>y</sub> − d<sub>t</sub>)·s, x<sub>2</sub> = (c<sub>x</sub> + d<sub>r</sub>)·s, y<sub>2</sub> = (c<sub>y</sub> + d<sub>b</sub>)·s</td><td>s is the stride of the head: 8, 16 or 32. Gives the box in 640×640 coordinates.</td></tr>
 <tr><td>Confidence threshold</td><td>score = max<sub>c</sub> σ(z<sub>c</sub>); keep if score ≥ τ<sub>conf</sub></td><td>τ<sub>conf</sub>, for example 0.25.</td></tr>
 <tr><td>IoU</td><td>w = max(0, min(x<sub>2</sub><sup>A</sup>, x<sub>2</sub><sup>B</sup>) − max(x<sub>1</sub><sup>A</sup>, x<sub>1</sub><sup>B</sup>)), h likewise for y<br>IoU(A, B) = w·h / (area(A) + area(B) − w·h)</td><td>Overlap of two boxes, from 0 (none) to 1 (identical).</td></tr>
 <tr><td>Non-maximum suppression</td><td>Sort boxes by score, highest first. Repeat: keep the first box; remove every remaining box of the same class with IoU > τ<sub>IoU</sub> against it</td><td>τ<sub>IoU</sub>, for example 0.7. Removes duplicate detections of one object.</td></tr>
 <tr><td>Undo the letterbox</td><td>x = (x′ − pad<sub>x</sub>) / g, &nbsp; y = (y′ − pad<sub>y</sub>) / g</td><td>Maps box corners back to the original image.</td></tr>
-</table></div><p class="back"><a href="yolo_architecture.html">← Back to the diagram</a></p><footer class="cr"><p>Created by Denis Ryndine with AI assistance (Claude Opus 5.5, Anthropic). <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</p></footer></div><script data-goatcounter="https://ghost-intuit.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</table></div>
+<h2 id="sources" style="margin-top:26px">Sources</h2><ol class="refs"><li id="ref1">Ultralytics. YOLOv8 model definition, <code>ultralytics/cfg/models/v8/yolov8.yaml</code>. GitHub repository ultralytics/ultralytics. <a href="https://github.com/ultralytics/ultralytics/blob/main/ultralytics/cfg/models/v8/yolov8.yaml">https://github.com/ultralytics/ultralytics/blob/main/ultralytics/cfg/models/v8/yolov8.yaml</a></li><li id="ref2">Ultralytics. YOLOv8 documentation: model sizes, parameters and FLOPs. <a href="https://docs.ultralytics.com/models/yolov8/">https://docs.ultralytics.com/models/yolov8/</a></li><li id="ref3">Ioffe, S., &amp; Szegedy, C. (2015). Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift. <i>Proceedings of the 32nd International Conference on Machine Learning</i>, PMLR 37, 448–456. <a href="https://proceedings.mlr.press/v37/ioffe15.html">https://proceedings.mlr.press/v37/ioffe15.html</a></li><li id="ref4">Elfwing, S., Uchibe, E., &amp; Doya, K. (2018). Sigmoid-weighted linear units for neural network function approximation in reinforcement learning. <i>Neural Networks</i>. <a href="https://doi.org/10.1016/j.neunet.2017.12.012">https://doi.org/10.1016/j.neunet.2017.12.012</a></li><li id="ref5">Ramachandran, P., Zoph, B., &amp; Le, Q. V. (2017). Searching for Activation Functions. arXiv:1710.05941. <a href="https://arxiv.org/abs/1710.05941">https://arxiv.org/abs/1710.05941</a></li><li id="ref6">Li, X., Wang, W., Wu, L., Chen, S., Hu, X., Li, J., Tang, J., &amp; Yang, J. (2020). Generalized Focal Loss: Learning Qualified and Distributed Bounding Boxes for Dense Object Detection. <i>Advances in Neural Information Processing Systems</i>, 33, 21002–21012. <a href="https://papers.neurips.cc/paper_files/paper/2020/hash/f0bda020d2470f2e74990a07a607ebd9-Abstract.html">https://papers.neurips.cc/paper_files/paper/2020/hash/f0bda020d2470f2e74990a07a607ebd9-Abstract.html</a></li><li id="ref7">OpenCV documentation. Geometric image transformations: <code>cv::resize</code>, <code>INTER_LINEAR</code> (bilinear interpolation). <a href="https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html">https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html</a></li></ol>
+<p class="back"><a href="yolo_architecture.html">← Back to the diagram</a></p><footer class="cr"><p>Created by Denis Ryndine with AI assistance (Claude Opus 5.5, Anthropic). <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</p></footer></div>
+<script>let PB=1;try{const s=localStorage.getItem("yolo8n_bytes");if(s)PB=+s}catch(e){}
+function fB(b){return b>=1e6?(b/1e6).toFixed(2)+" MB":b>=1e3?(b/1e3).toFixed(1)+" kB":Math.round(b)+" B"}
+function updB(){document.querySelectorAll(".by").forEach(e=>{const v=+e.dataset.v;e.textContent=v.toLocaleString("en-US")+" values ("+fB(v*PB)+")"});document.querySelectorAll(".byc").forEach(e=>{e.textContent=fB(+e.dataset.v*PB)});if(window.draw)draw()}
+document.querySelectorAll("#pctl button").forEach(b=>{b.classList.toggle("on",+b.dataset.b===PB);b.addEventListener("click",()=>{PB=+b.dataset.b;try{localStorage.setItem("yolo8n_bytes",PB)}catch(e){}document.querySelectorAll("#pctl button").forEach(c=>c.classList.toggle("on",c===b));updB()})});
+const MD=[{"k": "stem", "t": "Stem", "g": "p", "gn": "Backbone", "m": 44236800, "w": 448, "a": 2867200}, {"k": "p2", "t": "Stage P2", "g": "p", "gn": "Backbone", "m": 301465600, "w": 11904, "a": 2457600}, {"k": "p3", "t": "Stage P3", "g": "p", "gn": "Backbone", "m": 432537600, "w": 67904, "a": 1228800}, {"k": "p4", "t": "Stage P4", "g": "p", "gn": "Backbone", "m": 432537600, "w": 270976, "a": 614400}, {"k": "p5", "t": "Stage P5", "g": "p", "gn": "Backbone", "m": 301465600, "w": 754688, "a": 307200}, {"k": "sppf", "t": "SPPF", "g": "p", "gn": "Backbone", "m": 65536000, "w": 164224, "a": 204800}, {"k": "n4", "t": "1 · N4", "g": "t", "gn": "Neck", "m": 235929600, "w": 147840, "a": 512000}, {"k": "o3", "t": "2 · OUT3", "g": "t", "gn": "Neck", "m": 235929600, "w": 37056, "a": 1024000}, {"k": "o4", "t": "3 · OUT4", "g": "t", "gn": "Neck", "m": 255590400, "w": 160192, "a": 819200}, {"k": "o5", "t": "4 · OUT5", "g": "t", "gn": "Neck", "m": 255590400, "w": 639872, "a": 409600}, {"k": "h3", "t": "Head P3", "g": "c", "gn": "Detection heads", "m": 1202585600, "w": 188336, "a": 1331200}, {"k": "h4", "t": "Head P4", "g": "c", "gn": "Detection heads", "m": 433356800, "w": 271280, "a": 435200}, {"k": "h5", "t": "Head P5", "g": "c", "gn": "Detection heads", "m": 174694400, "w": 437168, "a": 160000}],TOT={m:4371456000,w:3151888,a:12371200};let MET="m",ORD="exec";
+const box=document.getElementById("mbars"),tip=document.getElementById("mtip");
+const GN={p:"Backbone",t:"Neck",c:"Detection heads"};
+const LEAD={m:"Convolution multiplications in each block, as a share of all 4,371,456,000. This is mathematical work; time on hardware also depends on how well each layer fits the device.",
+w:"Weights each block must load (after batch normalisation is folded in), as a share of all weights. In bytes at the number format selected above.",
+a:"Activation values each block reads and writes at its boundaries: its input tensors plus its output tensor. Tensors inside a block are not counted. In bytes at the number format selected above."};
+function fv(x){const v=x[MET];return MET==="m"?(v/1e6).toLocaleString("en-US",{minimumFractionDigits:1,maximumFractionDigits:1})+" M":fB(v*PB)}
+function draw(){const L=ORD==="size"?[...MD].sort((a,b)=>b[MET]-a[MET]):MD,mx=Math.max(...MD.map(x=>x[MET])),T=TOT[MET];box.innerHTML="";
+document.getElementById("mlead").textContent=LEAD[MET]+" Click a bar to open the block page.";
+document.getElementById("mleg").innerHTML=Object.entries(GN).map(([g,n])=>{const s=MD.filter(x=>x.g===g).reduce((a,x)=>a+x[MET],0);return '<span><i class="sw '+g+'"></i>'+n+": "+(MET==="m"?(s/1e6).toLocaleString("en-US",{maximumFractionDigits:1})+" million":fB(s*PB))+" ("+(100*s/T).toFixed(1)+" %)</span>"}).join("");
+L.forEach(x=>{const a=document.createElement("a");a.className="mrow";a.href="yolo_block_"+x.k+".html";const pc=(100*x[MET]/T).toFixed(1);
+a.innerHTML='<span class="mlab">'+x.t+'<span class="mgrp">'+x.gn+'</span></span><span class="mtrk"><span class="mbar '+x.g+'" style="width:'+(100*x[MET]/mx).toFixed(2)+'%"></span></span><span class="mval">'+fv(x)+' · '+pc+' %</span>';
+a.addEventListener("mousemove",ev=>{tip.innerHTML="<b>"+x.t+"</b> ("+x.gn+")<br>"+x.m.toLocaleString("en-US")+" multiplications<br>"+x.w.toLocaleString("en-US")+" weights ("+fB(x.w*PB)+")<br>"+x.a.toLocaleString("en-US")+" activation values in + out ("+fB(x.a*PB)+")";tip.style.display="block";const r=document.getElementById("mchart").getBoundingClientRect();tip.style.left=Math.max(0,Math.min(ev.clientX-r.left+14,r.width-240))+"px";tip.style.top=(ev.clientY-r.top+14)+"px"});
+a.addEventListener("mouseleave",()=>tip.style.display="none");box.appendChild(a)})}
+function upd(){updB()}
+function grp(id,attr,set){document.querySelectorAll("#"+id+" button").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("#"+id+" button").forEach(c=>c.classList.toggle("on",c===b));set(b.dataset[attr]);upd()}))}
+grp("mmet","m",v=>MET=v);grp("mord","o",v=>ORD=v);
+upd();
+</script><script data-goatcounter="https://ghost-intuit.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body></html>

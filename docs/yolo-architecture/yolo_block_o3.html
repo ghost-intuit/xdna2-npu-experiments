@@ -1,0 +1,121 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="copyright" content="Created by Denis Ryndine with AI assistance (Claude Opus 5.5, Anthropic). CC BY 4.0."><title>YOLOv8n 2 · OUT3</title>
+<meta name="author" content="Denis Ryndine">
+<meta name="description" content="YOLOv8n 2 · OUT3: the mathematical operations of this YOLOv8n block at 640×640, with tensor shapes and multiplication counts."><style>:root{--bg:#FFFFFF;--text:#1F1F1F;--muted:#5A5A5A;--border:#D9D9D9;
+--pf:#ECF8D4;--ps:#4D7C0F;--pt:#365314;--tf:#CFE8E3;--ts:#1F7A6E;--tt:#0E3F39;
+--cf:#F7D4D0;--cs:#C8323E;--ct:#6E1820;--gf:#E8ECF2;--gs:#4A5A70;--gt:#26313F;color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:16px}
+h1{font-size:20px;font-weight:500;margin:4px 0 6px}
+h2{font-size:18px;font-weight:500;margin:22px 0 8px}
+a{color:#1E4E8C}
+.lead{font-size:13.5px;color:var(--muted);margin:0 0 12px;line-height:1.55}
+.toc{font-size:13px;line-height:1.8;background:#F6F6F6;border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+.tocg{font-weight:500}
+.card{border:1px solid;border-radius:12px;padding:14px 16px;margin:0 0 16px;scroll-margin-top:12px}
+.card.p{background:var(--pf);border-color:var(--ps)}.card.p h3{color:var(--pt)}.card.p .meta{color:var(--ps)}
+.card.t{background:var(--tf);border-color:var(--ts)}.card.t h3{color:var(--tt)}.card.t .meta{color:var(--ts)}
+.card.c{background:var(--cf);border-color:var(--cs)}.card.c h3{color:var(--ct)}.card.c .meta{color:var(--cs)}
+.card.g{background:var(--gf);border-color:var(--gs)}.card.g h3{color:var(--gt)}.card.g .meta{color:var(--gs)}
+.card:target{box-shadow:0 0 0 3px #111 inset}
+.card h3{font-size:16px;font-weight:500;margin:0 0 2px}
+.meta{font-size:13px;margin:0 0 10px;font-family:ui-monospace,monospace}
+.formula{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:ui-monospace,monospace;font-size:13px;line-height:1.8;margin:0 0 12px;overflow-x:auto;white-space:nowrap}
+.tblwrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;line-height:1.45;background:#fff;border-radius:8px}
+th,td{text-align:left;padding:5px 7px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-weight:500;background:#FAFAFA}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.h td{background:#FCFCFC}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;white-space:nowrap}
+.tag.lin{background:#E6EEF8;color:#1E4E8C}.tag.nl{background:#F7D4D0;color:#6E1820}.tag.na{background:#EDEDED;color:#444}.tag.cmp{background:#F3E3B8;color:#4D3A08}
+.tot{font-size:13px;margin:10px 0 0;line-height:1.6}
+.note{font-size:12.5px;color:var(--muted);margin:6px 0 0;line-height:1.5}
+.back{font-size:13px;margin:8px 0 0}
+.defs td:nth-child(2){font-family:ui-monospace,monospace;font-size:12.5px;line-height:1.75}
+.defs td:first-child{width:22%}
+#mchart{margin:18px 0 6px;position:relative}
+.mctl{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:0 0 8px}
+.mctl button{font:inherit;font-size:13px;padding:5px 12px;border:0;background:#fff;color:var(--text);cursor:pointer}
+.mctl button+button{border-left:1px solid var(--border)}
+.mctl button.on{background:#1F1F1F;color:#fff}
+.mleg{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:var(--muted);margin:0 0 8px}
+.mleg span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px}
+.sw.p,.mbar.p{background:#5E8C0A}.sw.t,.mbar.t{background:#008A9E}.sw.c,.mbar.c{background:#C8323E}
+#mbars{position:relative}
+.mrow{display:grid;grid-template-columns:150px 1fr 140px;align-items:center;gap:10px;padding:4px 6px;border-radius:6px;text-decoration:none;color:var(--text)}
+.mrow:hover{background:#F2F2F2}
+.mlab{font-size:13px;font-weight:500;display:flex;flex-direction:column;line-height:1.2}
+.mgrp{font-size:11px;font-weight:400;color:var(--muted)}
+.mtrk{display:block;height:14px;background:#F4F4F4;border-radius:4px}
+.mbar{display:block;height:14px;border-radius:0 4px 4px 0;min-width:3px}
+.mval{font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums;color:var(--text);white-space:nowrap}
+#mtip{display:none;position:absolute;pointer-events:none;background:#1F1F1F;color:#fff;font-size:12px;line-height:1.45;padding:6px 9px;border-radius:6px;width:200px;z-index:5}
+@media (max-width:520px){.mrow{grid-template-columns:96px 1fr 104px;gap:6px}.mval{font-size:11.5px}}
+.ver{font-size:12px;color:#5A5A5A;margin:0 0 8px}
+footer.cr{margin:24px 0 8px;padding-top:10px;border-top:1px solid #D9D9D9;font-size:12px;color:#5A5A5A}
+footer.cr p{margin:0;line-height:1.5}
+footer.cr a{color:#1E4E8C}
+.mctl{margin-right:6px}
+.prec{font-size:13px;margin:12px 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.prec .mctl{margin:0}.pnote{flex-basis:100%;font-size:12px;color:var(--muted)}
+.dat{font-size:13px;margin:8px 0 0;line-height:1.6;background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px 10px}
+@media (max-width:520px){.mctl button{padding:5px 8px;font-size:12px}}
+
+.ref{font-size:11px;text-decoration:none;color:#1E4E8C;vertical-align:super;line-height:0}
+.refs{font-size:13px;line-height:1.55;padding-left:22px}.refs li{margin:0 0 6px}.refs a{word-break:break-all}
+.aud{font-size:13.5px;margin:0 0 10px;line-height:1.55;border-left:3px solid #D9D9D9;padding:2px 0 2px 10px;color:#3a3a3a}
+.fnote{font-style:italic;margin-top:1.2em}.fnote a{color:#1E4E8C}.figcap{font-size:12px;color:#5A5A5A;text-align:center;margin:8px 0 0}
+
+.crumb{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.ttl{border-left:4px solid var(--acc);padding:2px 0 2px 12px;margin:12px 0 4px}.ttl h1{margin:0}.ttl p{margin:2px 0 0;font-size:13.5px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}.chip{font-family:ui-monospace,monospace;font-size:12px;background:#F4F4F4;border:1px solid var(--border);border-radius:6px;padding:3px 8px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0 6px}
+.tile{border:1px solid var(--border);border-radius:10px;padding:10px 12px}.tile .k{font-size:12px;color:var(--muted)}.tile .v{font-size:20px;font-weight:500;margin:2px 0}.tile .s{font-size:12px;color:var(--muted)}
+section.blk{margin:26px 0 0;padding-top:14px;border-top:1px solid var(--border)}section.blk h2{margin:0 0 4px}
+.l{font-size:11px;fill:#5A5A5A}.l.hl{fill:#9A7618}.t{font-size:12.5px;font-weight:500}.s{font-size:11px}
+.op.p rect{fill:#ECF8D4;stroke:#4D7C0F;stroke-width:.8}.op.p .t{fill:#365314}.op.p .s{fill:#4D7C0F}
+.op.t rect{fill:#CFE8E3;stroke:#1F7A6E;stroke-width:.8}.op.t .t{fill:#0E3F39}.op.t .s{fill:#1F7A6E}
+.op.c rect{fill:#F7D4D0;stroke:#C8323E;stroke-width:.8}.op.c .t{fill:#6E1820}.op.c .s{fill:#C8323E}
+.na rect{fill:#F1F1F1;stroke:#7A7A7A;stroke-width:.8}.na .t{fill:#333}.na .s{fill:#666}
+.cmp rect{fill:#FAEFD6;stroke:#9A7618;stroke-width:.8}.cmp .t{fill:#4D3A08}.cmp .s{fill:#7A5C10}
+.a{stroke:#6B6B6B;stroke-width:1.3;fill:none}.a.hold{stroke:#C08A1A;stroke-width:2.2}
+.srow{display:grid;grid-template-columns:22px 250px 1fr 190px;gap:8px;align-items:center;padding:3px 0;font-size:12.5px}
+.sn{color:var(--muted)}.sl{display:flex;flex-direction:column;line-height:1.25}.sh{font-size:11px;color:var(--muted)}
+.sbar{display:block;height:14px;background:var(--acc2);border-radius:0 4px 4px 0}.sbar.pk{background:var(--acc)}
+.sv{text-align:right;font-variant-numeric:tabular-nums;font-size:12px}
+.dat{background:#fff}
+@media (max-width:560px){.srow{grid-template-columns:18px 1fr;}.srow .mtrk{grid-column:2}.srow .sv{grid-column:2;text-align:left}}
+:root{--acc:#0E3F39;--acc2:#008A9E}.home{margin:2px 0 14px}.home a{display:inline-block}.home img{height:34px;width:auto;display:block}
+</style></head><body>
+<div class="wrap">
+<p class="home"><a href="../" title="xdna2-npu-experiments home"><img src="../assets/logo-light.png" alt="Ghost Intuit: home" width="956" height="348"></a></p>
+<div class="crumb"><span><a href="yolo_architecture.html">← Diagram</a> · <a href="yolo_ops_details.html">Operations</a> › Neck › 2 · OUT3</span><span><a href="yolo_block_n4.html">← 1 · N4</a> · <a href="yolo_block_o4.html">3 · OUT4 →</a></span></div>
+<div class="ttl"><h1>2 · OUT3</h1><p>Neck step 2 (top-down): brings N4 up to 80×80 and merges it with B3. Its output goes to Head P3.</p></div>
+<p class="ver">Date: 15 October 2026, Version: 1.4, Last edit time: 11:22 AEDT, 16 October · YOLOv8n, 640×640 input</p>
+<div class="chips"><span class="chip">model.13 – model.15</span><span class="chip">N4 40×40×128, B3 80×80×64 → OUT3 80×80×64</span></div>
+<div class="prec"><b>Bytes shown for:</b> <span class="mctl" id="pctl"><button type="button" data-b="1">int8 (1 byte)</button><button type="button" data-b="2">bf16 / fp16 (2 bytes)</button><button type="button" data-b="4">fp32 (4 bytes)</button><button type="button" data-b="1.125">bfp16 (9 bytes per 8 values)</button></span><span class="pnote">Applies to every byte figure on this page and is remembered across pages. MB = 1,000,000 bytes. Weights are counted after batch normalisation is folded in: one weight per kernel entry plus one bias per output channel.</span><span class="pnote fnote">*Note: for the bf16 and bfp16 definitions, see AMD Quark documentation: <a href="https://quark.docs.amd.com/latest/onnx/tutorial_bf16_quantization.html">BF16 (bfloat16)</a> and <a href="https://quark.docs.amd.com/latest/pytorch/tutorial_bfp16.html">BFP16 (block floating point)</a>.</span></div>
+<div class="tiles"><div class="tile"><div class="k">Multiplications</div><div class="v">235.9 M</div><div class="s">5.4 % of the network</div></div><div class="tile"><div class="k">Weights</div><div class="v">37,056</div><div class="s"><span class="byc" data-v="37056"></span> · 1.2 % of all weights</div></div><div class="tile"><div class="k">Activations in + out</div><div class="v">1,024,000</div><div class="s">values · <span class="byc" data-v="1024000"></span></div></div><div class="tile"><div class="k">Peak held at once</div><div class="v">1,638,400</div><div class="s">values · <span class="byc" data-v="1638400"></span></div></div></div>
+<section class="blk"><h2>Structure</h2><p class="lead">The C2f part, without residual adds. Before it, N4 is upsampled to 80×80 and concatenated with B3 (128 + 64 = 192 channels) into u. Numbers on the lines are channels.</p><svg width="100%" viewBox="0 0 680 236" style="max-width:680px" role="img" aria-label="C2f structure"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#6B6B6B" stroke-width="1.5"/></marker><marker id="hh" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#C08A1A" stroke-width="1.5"/></marker></defs><path class="a" d="M6 122 H58" marker-end="url(#ah)"/><text class="l" x="8" y="114">u · 192</text><g class="op t"><rect x="60" y="100" width="92" height="44" rx="6"/><text class="t" x="106.0" y="118.0" text-anchor="middle">Conv 1×1</text><text class="s" x="106.0" y="134.0" text-anchor="middle">192 → 64</text></g><path class="a" d="M152 122 H206.0" marker-end="url(#ah)"/><g class="na"><rect x="208.0" y="100" width="56" height="44" rx="6"/><text class="t" x="236.0" y="126.0" text-anchor="middle">Split</text></g><path class="a hold" d="M236.0 100 V56 H482.0" marker-end="url(#hh)"/><text class="l hl" x="340.0" y="50">a · 32</text><path class="a" d="M264.0 122 H318.0" marker-end="url(#ah)"/><path class="a hold" d="M292.0 122 V192 H482.0" marker-end="url(#hh)"/><circle cx="292.0" cy="122" r="2.6" fill="#6B6B6B"/><text class="l hl" x="368.0" y="186">b · 32</text><g class="op t"><rect x="320.0" y="100" width="108" height="44" rx="6"/><text class="t" x="374.0" y="118.0" text-anchor="middle">Bottleneck 1</text><text class="s" x="374.0" y="134.0" text-anchor="middle">3×3, 3×3</text></g><path class="a" d="M428.0 122 H482.0" marker-end="url(#ah)"/><text class="l" x="430.0" y="114">m1</text><g class="na"><rect x="484.0" y="40" width="56" height="166" rx="6"/><text class="t" x="512.0" y="119.0" text-anchor="middle">Concat</text><text class="s" x="512.0" y="135.0" text-anchor="middle">96</text></g><path class="a" d="M540.0 122 H594.0" marker-end="url(#ah)"/><g class="op t"><rect x="596.0" y="100" width="80" height="44" rx="6"/><text class="t" x="636.0" y="118.0" text-anchor="middle">Conv 1×1</text><text class="s" x="636.0" y="134.0" text-anchor="middle">96 → 64</text></g><path class="a" d="M636.0 144 V188" marker-end="url(#ah)"/><text class="l" x="598.0" y="206">OUT3 · 64</text><text class="l hl" x="200" y="228">Amber: results held in memory until the concatenation runs</text></svg><p class="figcap">Figure 16 – 2 · OUT3: structure</p></section>
+<section class="blk"><h2>Memory held, step by step</h2><p class="lead">Values held in memory while each step runs. Assumptions: a result is freed after its last use in this block; a step's output is allocated while its inputs are still held; a concatenation is done in place, each part written directly into its slot of the concatenated tensor, so it copies nothing. Tensors that later blocks also need are counted only while this block uses them. The darkest bar is the peak.</p><div class="srow"><span class="sn">1</span><span class="sl">Upsample ×2 N4<span class="sh">held: N4, B3, U</span></span><span class="mtrk"><span class="sbar" style="width:87.5%"></span></span><span class="sv by" data-v="1433600">1,433,600 values</span></div><div class="srow"><span class="sn">2</span><span class="sl">Concat U, B3 (in place)<span class="sh">held: B3, U</span></span><span class="mtrk"><span class="sbar" style="width:75.0%"></span></span><span class="sv by" data-v="1228800">1,228,800 values</span></div><div class="srow"><span class="sn">3</span><span class="sl">Conv 1×1 192 → 64, split into a | b<span class="sh">held: B3, U, a|b</span></span><span class="mtrk"><span class="sbar pk" style="width:100.0%"></span></span><span class="sv by" data-v="1638400">1,638,400 values</span></div><div class="srow"><span class="sn">4</span><span class="sl">Bottleneck 1, conv 1 (3×3)<span class="sh">held: a|b, h1</span></span><span class="mtrk"><span class="sbar" style="width:37.5%"></span></span><span class="sv by" data-v="614400">614,400 values</span></div><div class="srow"><span class="sn">5</span><span class="sl">Bottleneck 1, conv 2 (3×3)<span class="sh">held: a|b, h1, m1</span></span><span class="mtrk"><span class="sbar" style="width:50.0%"></span></span><span class="sv by" data-v="819200">819,200 values</span></div><div class="srow"><span class="sn">6</span><span class="sl">Concat (in place, no copy)<span class="sh">held: a|b, m1</span></span><span class="mtrk"><span class="sbar" style="width:37.5%"></span></span><span class="sv by" data-v="614400">614,400 values</span></div><div class="srow"><span class="sn">7</span><span class="sl">Conv 1×1 96 → 64 → OUT3<span class="sh">held: a|b, m1, OUT3</span></span><span class="mtrk"><span class="sbar" style="width:62.5%"></span></span><span class="sv by" data-v="1024000">1,024,000 values</span></div><p class="figcap">Figure 17 – 2 · OUT3: memory held, step by step</p></section>
+<section class="blk"><h2>Operations</h2><p class="lead">In execution order. The operations are defined on the <a href="yolo_ops_details.html#defs">operations page</a>.</p><div class="formula">u = Concat(Up<sub>×2</sub>(N4), B3)<br>a | b = Split(SiLU(Conv<sub>1×1</sub><sup>192→64</sup>(u)))<br>m<sub>1</sub> = Bottleneck<sub>no-res</sub>(b)<br>OUT3 = SiLU(Conv<sub>1×1</sub><sup>96→64</sup>(Concat(a, b, m<sub>1</sub>)))</div><div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th><th>Weights (count)</th></tr>
+<tr><td>1</td><td style="padding-left:8px">Nearest upsample ×2</td><td>N4: 40×40 → 80×80</td><td>80×80×128</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td><td class="n">0</td></tr>
+<tr><td>2</td><td style="padding-left:8px">Channel concatenation</td><td>with B3: 128 + 64 → 192</td><td>80×80×192</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td><td class="n">0</td></tr>
+<tr class="h"><td></td><td colspan="6" style="padding-left:8px"><b>C2f, 1 bottleneck, no residual add</b></td></tr>
+<tr><td>3</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 192 → 64</td><td>80×80×64</td><td><span class="tag lin">linear</span></td><td class="n">78,643,200</td><td class="n">12,352</td></tr>
+<tr><td>4</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>80×80×64</td><td><span class="tag nl">non-linear</span></td><td class="n">409,600</td><td class="n">0</td></tr>
+<tr><td>5</td><td style="padding-left:24px">Channel split</td><td>64 → 32 | 32 (a | b)</td><td>2 × 80×80×32</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td><td class="n">0</td></tr>
+<tr class="h"><td></td><td colspan="6" style="padding-left:24px"><b>Bottleneck:</b></td></tr>
+<tr><td>6</td><td style="padding-left:40px">Convolution + bias, ×2</td><td>3×3, stride 1, pad 1, 32 → 32</td><td>80×80×32</td><td><span class="tag lin">linear</span></td><td class="n">58,982,400 each</td><td class="n">9,248 each</td></tr>
+<tr><td>7</td><td style="padding-left:40px">SiLU, ×2</td><td>every value</td><td>80×80×32</td><td><span class="tag nl">non-linear</span></td><td class="n">204,800 each</td><td class="n">0</td></tr>
+<tr><td>8</td><td style="padding-left:24px">Channel concatenation</td><td>a, b, m1: 3 × 32 → 96</td><td>80×80×96</td><td><span class="tag na">no arithmetic</span></td><td class="n">0</td><td class="n">0</td></tr>
+<tr><td>9</td><td style="padding-left:24px">Convolution + bias</td><td>1×1, stride 1, pad 0, 96 → 64</td><td>80×80×64</td><td><span class="tag lin">linear</span></td><td class="n">39,321,600</td><td class="n">6,208</td></tr>
+<tr><td>10</td><td style="padding-left:24px">SiLU</td><td>every value</td><td>80×80×64</td><td><span class="tag nl">non-linear</span></td><td class="n">409,600</td><td class="n">0</td></tr>
+</table></div><p class="tot"><b>Totals:</b> 4 convolutions · 4 SiLU · 1 upsample · 1 split · 2 concatenations.<br><b>Multiplications in the convolutions:</b> 235,929,600.</p></section>
+<p class="back"><a href="yolo_architecture.html">← Diagram</a> · <a href="yolo_ops_details.html">Operations</a> · <a href="yolo_block_n4.html">← 1 · N4</a> · <a href="yolo_block_o4.html">3 · OUT4 →</a></p><footer class="cr"><p>Created by Denis Ryndine with AI assistance (Claude Opus 5.5, Anthropic). <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</p></footer></div>
+<script>let PB=1;try{const s=localStorage.getItem("yolo8n_bytes");if(s)PB=+s}catch(e){}
+function fB(b){return b>=1e6?(b/1e6).toFixed(2)+" MB":b>=1e3?(b/1e3).toFixed(1)+" kB":Math.round(b)+" B"}
+function updB(){document.querySelectorAll(".by").forEach(e=>{const v=+e.dataset.v;e.textContent=v.toLocaleString("en-US")+" values ("+fB(v*PB)+")"});document.querySelectorAll(".byc").forEach(e=>{e.textContent=fB(+e.dataset.v*PB)});if(window.draw)draw()}
+document.querySelectorAll("#pctl button").forEach(b=>{b.classList.toggle("on",+b.dataset.b===PB);b.addEventListener("click",()=>{PB=+b.dataset.b;try{localStorage.setItem("yolo8n_bytes",PB)}catch(e){}document.querySelectorAll("#pctl button").forEach(c=>c.classList.toggle("on",c===b));updB()})});
+updB();</script><script data-goatcounter="https://ghost-intuit.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body></html>
