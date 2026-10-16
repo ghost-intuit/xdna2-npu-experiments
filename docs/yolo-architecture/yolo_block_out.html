@@ -92,7 +92,7 @@ section.blk{margin:26px 0 0;padding-top:14px;border-top:1px solid var(--border)}
 <p class="home"><a href="../" title="xdna2-npu-experiments home"><img src="../assets/logo-light.png" alt="Ghost Intuit: home" width="956" height="348"></a></p>
 <div class="crumb"><span><a href="yolo_architecture.html">← Diagram</a> · <a href="yolo_ops_details.html">Operations</a> › Decode and output › Output</span><span><a href="yolo_block_nms.html">← Decode + NMS</a></span></div>
 <div class="ttl"><h1>Output</h1><p>Maps the kept boxes back to the original image.</p></div>
-<p class="ver">Date: 15 October 2026, Version: 1.4, Last edit time: 11:22 AEDT, 16 October · YOLOv8n, 640×640 input</p>
+<p class="ver">Date: 15 October 2026, Version: 1.7, Last edit time: 22:30 AEDT, 16 October · YOLOv8n, 640×640 input</p>
 <div class="chips"><span class="chip">host</span><span class="chip">kept boxes in 640×640 coordinates → boxes in original image coordinates</span></div>
 <section class="blk"><h2>Operations</h2><p class="lead">In execution order. The operations are defined on the <a href="yolo_ops_details.html#defs">operations page</a>.</p><div class="formula">x = (x′ − pad<sub>x</sub>) / g, &nbsp; y = (y′ − pad<sub>y</sub>) / g</div><div class="tblwrap"><table><tr><th>#</th><th>Operation</th><th>Parameters</th><th>Output shape</th><th>Kind</th><th>Multiplications (count)</th><th>Weights (count)</th></tr>
 <tr><td>1</td><td style="padding-left:8px">Undo the letterbox</td><td>subtract padding, divide by gain g</td><td>per box</td><td><span class="tag lin">linear</span></td><td class="n">0</td><td class="n">0</td></tr>

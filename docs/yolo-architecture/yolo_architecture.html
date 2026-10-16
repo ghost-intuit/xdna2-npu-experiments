@@ -86,6 +86,9 @@ svg text{font-family:inherit}
 footer.cr{margin:24px 0 8px;padding-top:10px;border-top:1px solid #D9D9D9;font-size:12px;color:#5A5A5A}
 footer.cr p{margin:0 0 6px;line-height:1.5}footer.cr a{color:#1E4E8C}
 #crbtn{font:inherit;font-size:11px;padding:1px 8px;border:1px solid #D9D9D9;border-radius:5px;background:#fff;cursor:pointer}
+.fullbtn{display:none;font:inherit;font-size:12.5px;line-height:1.4;padding:4px 10px;margin:0 0 8px;border:1px solid #D9D9D9;border-radius:6px;background:#FAFAFA;color:#1E4E8C;cursor:pointer}.fullbtn:hover{background:#F0F0F0}
+@media (max-width:759.98px){.fullbtn{display:inline-block}}
+.dscroll.full{overflow-x:auto;overscroll-behavior-x:contain;border:1px solid #D9D9D9;border-radius:8px}.dscroll.full svg{width:760px;max-width:none;display:block}
 .home{margin:2px 0 14px}.home a{display:inline-block}.home img{height:34px;width:auto;display:block}
 
 /* Background artwork beside the content column on wide screens only;
@@ -110,17 +113,17 @@ footer.cr p{margin:0 0 6px;line-height:1.5}footer.cr a{color:#1E4E8C}
 <div class="wrap">
 <p class="home"><a href="../" title="xdna2-npu-experiments home"><img src="../assets/logo-light.png" alt="Ghost Intuit: home" width="956" height="348"></a></p>
 <h1>YOLOv8n architecture</h1>
-<p class="ver">Date: 15 October 2026, Version: 1.4, Last edit time: 11:22 AEDT, 16 October · pairs with yolo_ops_details.html and the block pages, version 1.4</p>
+<p class="ver">Date: 15 October 2026, Version: 1.7, Last edit time: 22:30 AEDT, 16 October · pairs with yolo_ops_details.html and the block pages, version 1.7</p>
 <p class="aud">For two kinds of reader: those learning how YOLOv8n works, and engineers implementing YOLOv8n inference on hardware (NPUs, FPGAs and other accelerators). Inference only; training is not covered.</p>
-<p class="credit">Diagram of the Ultralytics YOLOv8 architecture, which combines ideas from FPN, PANet, CSPNet, YOLOX and earlier YOLO versions. <a href="#origins">Origins of each part</a></p>
+<p class="credit">Diagram of the Ultralytics YOLOv8 architecture, which combines ideas from FPN, PANet, CSPNet, YOLOX and earlier YOLO versions. These pages describe the released YOLOv8 architecture, ultralytics 8.2.103 (<a href="https://github.com/ultralytics/ultralytics/blob/v8.2.103/ultralytics/cfg/models/v8/yolov8.yaml">yolov8.yaml</a>, <a href="https://github.com/ultralytics/ultralytics/blob/v8.2.103/ultralytics/nn/modules/block.py">block.py</a>, <a href="https://github.com/ultralytics/ultralytics/blob/v8.2.103/ultralytics/nn/modules/head.py">head.py</a> at tag v8.2.103, the last release before 8.3.0) and the pretrained YOLOv8n weights. <a href="#origins">Origins of each part</a></p>
 <nav class="sitenav" aria-label="Pages"><ul><li class="l1"><b>This page</b>: <a href="#diagram">Diagram</a> · <a href="#ops">Operations per block</a> · <a href="#sizes">YOLOv8 sizes</a> · <a href="#origins">Origins of each part</a> · <a href="#gloss">Names and abbreviations</a></li><li class="l2"><a href="yolo_ops_details.html"><b>Operations page</b></a>: work and data per block, definitions of operations, sources</li><li class="l2b">Block pages: structure, memory held step by step, every operation</li><li class="l3"><span class="ng">Input:</span> <a href="yolo_block_input.html">Input image</a></li><li class="l3"><span class="ng">Backbone:</span> <a href="yolo_block_stem.html">Stem</a> · <a href="yolo_block_p2.html">Stage P2</a> · <a href="yolo_block_p3.html">Stage P3</a> · <a href="yolo_block_p4.html">Stage P4</a> · <a href="yolo_block_p5.html">Stage P5</a> · <a href="yolo_block_sppf.html">SPPF</a></li><li class="l3"><span class="ng">Neck:</span> <a href="yolo_block_n4.html">1 · N4</a> · <a href="yolo_block_o3.html">2 · OUT3</a> · <a href="yolo_block_o4.html">3 · OUT4</a> · <a href="yolo_block_o5.html">4 · OUT5</a></li><li class="l3"><span class="ng">Detection heads:</span> <a href="yolo_block_dh.html">Inside each head</a> · <a href="yolo_block_h3.html">Head P3</a> · <a href="yolo_block_h4.html">Head P4</a> · <a href="yolo_block_h5.html">Head P5</a></li><li class="l3"><span class="ng">Decode and output:</span> <a href="yolo_block_nms.html">Decode + NMS</a> · <a href="yolo_block_out.html">Output</a></li></ul></nav>
 <p class="hint">Click any block or section title to see what it does.</p>
 <p class="hint">How to read it: the backbone runs top to bottom and finishes first. Its outputs B3, B4 and S5 are kept and picked up later by the neck. The neck then runs in the numbered order 1 → 4: up the FPN side, then down the PAN side. A dot marks where one output feeds two places.</p>
-<div id="diagram"><svg width="100%" viewBox="0 0 680 700" role="img" aria-label="YOLO block diagram">
+<div id="diagram"><button type="button" class="fullbtn" id="fullbtn" aria-pressed="false" aria-controls="dscroll">Open the diagram at full size</button><div class="dscroll" id="dscroll"><svg width="100%" viewBox="0 0 680 700" role="img" aria-label="YOLO block diagram">
 <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
 
 <rect class="box" x="20" y="96" width="150" height="494" rx="12"/>
-<text class="th lbl" data-k="backbone" x="95" y="114" text-anchor="middle" dominant-baseline="central">Backbone</text>
+<text class="th lbl" data-k="backbone" x="102" y="114" dominant-baseline="central">Backbone</text>
 <rect class="box" x="188" y="96" width="304" height="494" rx="12"/>
 <text class="th lbl" data-k="neck" x="340" y="114" text-anchor="middle" dominant-baseline="central">Neck</text>
 <rect class="box" x="510" y="96" width="150" height="494" rx="12"/>
@@ -163,7 +166,7 @@ footer.cr p{margin:0 0 6px;line-height:1.5}footer.cr a{color:#1E4E8C}
 <line class="arr" x1="652" y1="468" x2="668" y2="468"/>
 <line class="arr" x1="518" y1="642" x2="482" y2="642" marker-end="url(#a)"/>
 <text x="668" y="692" text-anchor="end" style="font-size:10px;fill:#6B6B6B">Created by Denis Ryndine with AI assistance (Claude Opus 5.5, Anthropic). CC BY 4.0.</text>
-</svg>
+</svg></div>
 <p class="figcap">Figure 1 – YOLOv8n architecture</p></div>
 <div id="info"><h2>Pick a block</h2><p>Explanations appear here.</p></div>
 <div id="ops">
@@ -238,11 +241,12 @@ footer.cr p{margin:0 0 6px;line-height:1.5}footer.cr a{color:#1E4E8C}
 <tr><td>Decoupled head</td><td>YOLOX (Megvii, 2021)</td></tr>
 <tr><td>Anchor-free prediction</td><td>FCOS (Tian et al., 2019), then YOLOX</td></tr>
 <tr><td>DFL</td><td>Generalized Focal Loss, Li et al., 2020</td></tr>
-<tr><td>SiLU activation</td><td>Elfwing et al., 2018 (also published as Swish)</td></tr>
+<tr><td>SiLU activation</td><td>Elfwing et al., 2018</td></tr>
+<tr><td>Swish activation (x · σ(βx); the same function as SiLU for β = 1)</td><td>Ramachandran et al., 2017, <a href="https://arxiv.org/abs/1710.05941">arXiv:1710.05941</a></td></tr>
 <tr><td>NMS</td><td>Standard detection step for many years</td></tr>
 <tr><td>SPPF</td><td>Ultralytics, YOLOv5</td></tr>
 <tr><td>C2f block</td><td>Ultralytics, YOLOv8 (develops their C3 block, with ideas from YOLOv7's ELAN)</td></tr>
-<tr><td>Exact layer configuration and n/s/m/l/x scaling</td><td>Ultralytics, <a href="https://github.com/ultralytics/ultralytics/blob/main/ultralytics/cfg/models/v8/yolov8.yaml">yolov8.yaml</a></td></tr>
+<tr><td>Exact layer configuration and n/s/m/l/x scaling</td><td>Ultralytics, <a href="https://github.com/ultralytics/ultralytics/blob/v8.2.103/ultralytics/cfg/models/v8/yolov8.yaml">yolov8.yaml</a></td></tr>
 <tr><td>Earlier YOLOv8 structure diagram (prior work)</td><td>RangeKing (2023), "Brief summary of YOLOv8 model structure", <a href="https://github.com/ultralytics/ultralytics/issues/189">Ultralytics issue #189</a>; used in the MMYOLO documentation</td></tr>
 </table>
 <p style="font-size:13px;color:var(--muted);margin:8px 0 0">YOLOv8 has no research paper; Ultralytics released it in January 2023 as code and documentation (github.com/ultralytics/ultralytics).</p>
@@ -315,8 +319,8 @@ dh:["Inside each head (decoupled head)","<p>This is not a separate step that dat
 h3:["Head P3","<p>Takes OUT3 and predicts on the 80×80 grid: 6,400 positions, each a candidate box + class scores. Responsible for small objects.</p>"],
 h4:["Head P4","<p>Takes OUT4 and predicts on the 40×40 grid: 1,600 positions. Responsible for medium objects.</p>"],
 h5:["Head P5","<p>Takes OUT5 and predicts on the 20×20 grid: 400 positions. Responsible for large objects.</p><p>All three heads together give 8,400 candidate predictions per 640×640 image.</p>"],
-nms:["Decode + NMS","<ul><li>Decode: convert each cell's raw outputs into real box coordinates in image pixels, using the cell position and stride.</li><li>Confidence filter: drop candidates whose best class score is below a threshold (e.g. 0.25).</li><li>NMS (non-maximum suppression): when boxes of the same class overlap heavily (IoU, Intersection over Union, above e.g. 0.7), keep only the highest-scoring one.</li></ul><p>This step usually runs on the CPU, outside the network graph.</p>"],
-out:["Output","<p>A short list of detections. Each has box coordinates (x, y, width, height or corners), a class label and a confidence score, mapped back to the original image size by undoing the letterbox resize.</p>"],
+nms:["Decode + NMS","<ul><li>Decode: convert each cell's raw outputs into a box in image pixels, using the cell position and stride. Decode gives the box as centre x, centre y, width and height; NMS converts it to corners x1, y1, x2, y2 (the same box).</li><li>Confidence filter: keep only candidates whose best class score is above a threshold (e.g. 0.25).</li><li>NMS (non-maximum suppression): when boxes of the same class overlap heavily (IoU, Intersection over Union, above e.g. 0.7), keep only the highest-scoring one.</li></ul><p>Decode runs inside the Detect layer on the model's device; NMS runs on the device that holds the predictions.</p>"],
+out:["Output","<p>A short list of detections. Each has box corners (x1, y1, x2, y2), a class label and a confidence score, mapped back to the original image size by undoing the letterbox resize.</p>"],
 backbone:["Backbone","<p>The 'spine': extracts features, shrinking the image while making features more abstract (edges → textures → parts → objects). Often pre-trained and swappable. In YOLOv8: stem, four stages (stride-2 conv + C2f), then SPPF. It runs completely before the neck starts.</p><p>Three outputs are kept for the neck: B3, B4 and S5.</p><p>C2f (CSP bottleneck with 2 convolutions, CSP = Cross Stage Partial): a 1×1 conv splits channels in two; one half skips ahead, the other runs through a chain of bottleneck blocks; every intermediate output is concatenated and merged by a 1×1 conv. Good gradient flow, feature reuse, low cost.</p>"],
 neck:["Neck (FPN + PAN)","<p>FPN = Feature Pyramid Network, PAN = Path Aggregation Network.</p><p>Connects backbone to heads and mixes scales. It does not look at the image again; it combines what the backbone found. It runs strictly in order:</p><ol><li>N4 = C2f(Up(S5) + B4)</li><li>OUT3 = C2f(Up(N4) + B3) → Head P3</li><li>OUT4 = C2f(Down(OUT3) + N4) → Head P4</li><li>OUT5 = C2f(Down(OUT4) + S5) → Head P5</li></ol><p>'+' here means concatenate along channels.</p>"],
 heads:["Detection heads","<p>The decision-making end: turn the neck outputs OUT3, OUT4, OUT5 into boxes and class scores. One head per scale, each with the same decoupled design. Swapping heads lets the same backbone and neck do segmentation or pose instead of detection.</p>"]};
@@ -330,6 +334,7 @@ document.querySelectorAll("[data-k]").forEach(e=>e.addEventListener("click",()=>
 document.querySelectorAll(".blk.on").forEach(b=>b.classList.remove("on"));
 if(e.classList.contains("blk"))e.classList.add("on");
 const [h,b]=I[e.dataset.k];const inf=document.getElementById("info");const grp=e.classList.contains("blk")?["p","t","c","g"].find(c=>e.classList.contains(c)):{backbone:"p",neck:"t",fpn:"t",pan:"t",heads:"c"}[e.dataset.k];inf.className=grp||"";const D=["input","stem","p2","p3","p4","p5","sppf","n4","o3","o4","o5","dh","h3","h4","h5","nms","out"];const lk=D.includes(e.dataset.k)?"<p class=\"inlink\"><a href=\"yolo_block_"+e.dataset.k+".html\">Block page: structure, memory and every operation →</a></p>":"";inf.innerHTML="<h2>"+h+"</h2>"+b+lk;}));
+(function(){const b=document.getElementById("fullbtn"),d=document.getElementById("dscroll");if(!b||!d)return;b.addEventListener("click",()=>{const on=d.classList.toggle("full");b.textContent=on?"Fit the diagram to the screen":"Open the diagram at full size";b.setAttribute("aria-pressed",on?"true":"false")})})();
 </script>
 <script data-goatcounter="https://ghost-intuit.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
