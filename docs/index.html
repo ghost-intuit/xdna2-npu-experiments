@@ -124,6 +124,11 @@
       An experimental report on why one unchanged YOLOv8n program on the NPU of a laptop gives
       different inference times. The times are compared with the NPU's clocks and the processor's
       sensor readings (as reported by its firmware), and four power settings are tested.</li>
+    <li><a href="yolov8n-iron-summary/">YOLOv8n on the AMD XDNA 2 NPU through IRON: a working bf16 port - summary of key results</a>
+      (<a href="yolov8n-iron-summary/yolov8n-iron-summary-v0.34.pdf">PDF</a>).
+      A summary of a working port of YOLOv8n to the NPU with IRON and MLIR-AIE, in bf16: outputs that
+      match its bf16 reference byte for byte, 16.30 ms end to end, and a comparison with AMD's Vitis AI
+      running the same model in int8.</li>
     <li><a href="yolo-architecture/yolo_architecture.html">YOLOv8n architecture and per-block operations</a>
       (<a href="yolo-architecture/yolo_ops_details.html">operations in detail</a>).
       An interactive diagram of the YOLOv8n object detector at a 640×640 input, with a page for each
@@ -180,6 +185,22 @@
   month       = oct,
   note        = {Version 0.39 (DRAFT)},
   url         = {https://ghost-intuit.github.io/xdna2-npu-experiments/npu-power-state/}
+}</pre>
+  </div>
+  <div class="cite">
+    <h3>The YOLOv8n IRON port summary</h3>
+    <div class="fmt"><span>APA</span><button type="button" data-copy="iron-apa">Copy</button></div>
+    <p class="apa" id="iron-apa">Ryndine, D. (2026). <em>YOLOv8n on the AMD XDNA 2 NPU through IRON: a working bf16 port - summary of key results</em> (Version 0.34 (DRAFT)) [Technical report]. Ghost Intuit Pty Ltd. https://ghost-intuit.github.io/xdna2-npu-experiments/yolov8n-iron-summary/</p>
+    <div class="fmt"><span>BibTeX</span><button type="button" data-copy="iron-bib">Copy</button></div>
+    <pre id="iron-bib">@techreport{ryndine2026yolov8niron,
+  author      = {Ryndine, Denis},
+  title       = {{YOLOv8n} on the {AMD} {XDNA} 2 {NPU} through {IRON}: a working bf16 port -- summary of key results},
+  institution = {Ghost Intuit Pty Ltd},
+  type        = {Technical report},
+  year        = {2026},
+  month       = oct,
+  note        = {Version 0.34 (DRAFT)},
+  url         = {https://ghost-intuit.github.io/xdna2-npu-experiments/yolov8n-iron-summary/}
 }</pre>
   </div>
   <div class="cite">

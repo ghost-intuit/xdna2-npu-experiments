@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YOLOv8n IRON port: key results</title>
+<meta name="description" content="Summary of key results: YOLOv8n ported to the AMD XDNA 2 NPU of a Windows laptop with IRON and MLIR-AIE, in bf16; identical to its reference, 16.30 ms end to end, compared with Vitis AI int8.">
+<meta property="og:site_name" content="xdna2-npu-experiments">
+<meta property="og:title" content="YOLOv8n on the AMD XDNA 2 NPU through IRON: a working bf16 port - summary of key results">
+<meta property="og:description" content="Summary of key results: YOLOv8n ported to the AMD XDNA 2 NPU of a Windows laptop with IRON and MLIR-AIE, in bf16; identical to its reference, 16.30 ms end to end, compared with Vitis AI int8.">
+<meta property="og:image" content="https://ghost-intuit.github.io/xdna2-npu-experiments/yolov8n-iron-summary/summary-preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="Title of the report beside Figure 2, the array configuration of the NPU: three tile groups on the 8-column tile array">
+<meta property="og:url" content="https://ghost-intuit.github.io/xdna2-npu-experiments/yolov8n-iron-summary/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="author" content="Denis Ryndine">
+<meta name="copyright" content="(c) 2026 Denis Ryndine, Ghost Intuit Pty Ltd. Licensed under CC BY 4.0.">
+<style>
+:root { --bg:#fff; --fg:#1d1d1f; --muted:#5f6368; --line:#d0d0cc; --head:#f2f2ef; --accent:#2b5d8a; --code:#f4f4f1; }
+@media (prefers-color-scheme: dark) { :root { --bg:#101015; --fg:#e8e8e8; --muted:#a0a4aa; --line:#3a3a40;
+  --head:#1c1c22; --accent:#7fb0dc; --code:#1a1a20; } }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--fg); font: 16.5px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.bar { max-width: 820px; margin: 0 auto; padding: 18px 16px 0; display: flex; align-items: center;
+  justify-content: space-between; gap: 12px; font-size: 0.92rem; }
+.bar a { color: var(--accent); text-decoration: none; }
+.bar img { height: 34px; width: auto; display: block; }
+.dl { border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; }
+article { max-width: 820px; margin: 0 auto; padding: 24px 16px 40px; }
+h1 { font-size: 1.85rem; line-height: 1.25; margin: 16px 0 18px; }
+h2 { font-size: 1.4rem; margin: 2.2em 0 0.6em; padding-top: 0.6em; border-top: 1px solid var(--line); }
+p, ul, ol { margin: 0 0 0.85em; }
+li > p { margin: 0 0 0.35em; }
+.front ul { margin-bottom: 0.4em; } .front li > p { margin: 0 0 0.1em; }
+a { color: var(--accent); }
+.tbl { overflow-x: auto; margin: 0.6em 0 0.3em; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; vertical-align: top; }
+th { background: var(--head); }
+.tblock, .fblock { margin: 0.6em 0 1.4em; }
+.mk { position: absolute; font-size: 1px; color: transparent; }
+img.figimg { display: block; width: 100%; height: auto; background: #fff; border-radius: 6px; }
+p.cap { text-align: center; font-size: 0.9rem; line-height: 1.45; margin: 0.5em auto 0; max-width: 46em; }
+p.cap i { color: var(--muted); }
+.pg { display: none; }
+footer { max-width: 820px; margin: 0 auto; padding: 24px 16px 48px; border-top: 1px solid var(--line);
+  color: var(--muted); font-size: 0.88rem; }
+.howcite { max-width: 820px; margin: 0 auto; padding: 0 16px 24px; }
+.cite { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin: 0 0 14px; }
+.cite h3 { font-size: 0.95rem; margin: 0 0 8px; }
+.cite .fmt { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 10px 0 4px; }
+.cite .apa { margin: 0; }
+.cite pre { margin: 0; font-size: 0.82rem; white-space: pre; overflow-x: auto; background: var(--code);
+  border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; }
+.cite button { font: inherit; font-size: 0.78rem; color: var(--accent); background: none;
+  border: 1px solid var(--line); border-radius: 5px; padding: 2px 10px; cursor: pointer; }
+
+@page { size: A4; margin: 16mm 17mm 18mm; }
+@media print {
+  :root { --bg:#fff; --fg:#111; --muted:#444; --line:#9a9a96; --head:#ececea; --accent:#1f4e79; --code:#f3f3f0; }
+  body { font-size: 10.3pt; line-height: 1.42; }
+  .bar, footer, .noprint { display: none !important; }
+  article { max-width: none; padding: 0; }
+  h1 { font-size: 18pt; margin-top: 0; }
+  h2 { font-size: 14pt; border-top: none; padding-top: 0; margin-top: 1.4em; break-after: avoid; }
+  #m9fbdfbfszx\.13109 { break-before: page; margin-top: 0; }
+  #m9fbdfbfszx\.1367 { break-before: page; }
+  h2 + * { break-before: avoid; }
+  .tblock, .fblock, tr, li { break-inside: avoid; }
+  .tbl { overflow: visible; }
+  table { font-size: 9pt; } th, td { padding: 3pt 5pt; }
+  img.figimg { border-radius: 0; max-height: 165mm; width: auto; max-width: 100%; margin: 0 auto; }
+  p.cap { font-size: 9pt; }
+  .front { font-size: 9.5pt; line-height: 1.3; }
+  .front ul { padding-left: 1.2em; }
+  .front p { display: flex; gap: 0.4em; }
+  .front .pg { display: inline; margin-left: auto; padding-left: 1em; }
+  a { text-decoration: none; }
+  p, li { orphans: 3; widows: 3; }
+}
+</style>
+</head>
+<body>
+<nav class="bar">
+  <a href="../"><picture><source srcset="../assets/logo-dark.png" media="(prefers-color-scheme: dark)"><img src="../assets/logo-light.png" alt="Ghost Intuit: home"></picture></a>
+  <a class="dl" href="yolov8n-iron-summary-v0.34.pdf">PDF version</a>
+</nav>
+<article>
+<h1 id="yolov8n-on-the-amd-xdna-2-npu-through-iron-a-working-bf16-port---summary-of-key-results">YOLOv8n on the AMD XDNA 2 NPU through IRON: a working bf16 port - summary of key results</h1>
+<p><strong>Date:</strong> 2026-10-23, Version: 0.34 (DRAFT), Last edit time: 00:50 AEDT, 30 October</p>
+<p><strong>Author:</strong> Denis Ryndine: <em>project direction, hardware runs, measurements, interpretation</em></p>
+<p><strong>Assistant:</strong> Claude (Anthropic), model claude-opus-5-5: <em>report drafting and drawings from the project records, under the author&#39;s direction</em></p>
+<h2 id="m9fbdfbfszx.394">Abstract</h2>
+<p>We ported YOLOv8n (640 × 640, Ultralytics&#39; pretrained model, not retrained) to the AMD XDNA 2 NPU of a Windows laptop, with IRON and MLIR-AIE [4], in bf16 stored as bfp16 blocks. One inference takes 16.30 ms end to end, from reading the image file to the list of detections (61.4 images per second); the NPU&#39;s part of it is 9.68 ms. In the laptop&#39;s faster power state, which the user does not set, these are 15.31 ms and 8.88 ms. The port&#39;s outputs match its bf16 reference byte for byte, and its accuracy, mAP50-95 0.375 on a 500-image COCO subset, is that of the FP32 model (0.372). The largest part of the NPU time goes to moving data inside the array, not to multiply-accumulate work (about 17 %).</p>
+<p>This summary gives only the end state and its final figures. Every time in it comes from one run of 50 sessions on the final build, each given for the slower power state, with the faster state in brackets; the two breakdowns, of the NPU time and of Vitis AI&#39;s inference call, come from further sessions on the same build (Appendix B). How each stage was reached, the per-call times and the intermediate results are in the full report [1].</p>
+<p>Against AMD&#39;s Vitis AI [5], which runs the same model in int8 and was timed in the same sessions, the port is 2.6 ms longer on the matching span (2.1 ms in the faster state), mostly in its input conversion and process boundary, and more accurate: mAP50-95 0.375 against 0.296 (section 5).</p>
+<nav class="front"><h2 id="m9fbdfbfszx.13109">Contents</h2>
+<ul><li><p><a href="#m9fbdfbfszx.394">Abstract</a><span class="pg" data-for="m9fbdfbfszx.394">1</span></p></li><li><p><a href="#m9fbdfbfszx.1367">1. What was built</a><span class="pg" data-for="m9fbdfbfszx.1367">3</span></p></li><li><p><a href="#m9fbdfbfszx.2958">2. Identical to the reference: correctness and accuracy</a><span class="pg" data-for="m9fbdfbfszx.2958">5</span></p></li><li><p><a href="#m9fbdfbfszx.4434">3. Speed: the final figures</a><span class="pg" data-for="m9fbdfbfszx.4434">6</span></p></li><li><p><a href="#m9fbdfbfszx.6951">4. Where the NPU time goes</a><span class="pg" data-for="m9fbdfbfszx.6951">8</span></p></li><li><p><a href="#m9fbdfbfszx.5819">5. Comparison with Vitis AI int8</a><span class="pg" data-for="m9fbdfbfszx.5819">9</span></p></li><li><p><a href="#m9fbdfbfszx.7942">6. Key findings</a><span class="pg" data-for="m9fbdfbfszx.7942">11</span></p></li><li><p><a href="#m9fbdfbfszx.9684">Full report and references</a><span class="pg" data-for="m9fbdfbfszx.9684">12</span></p></li><li><p><a href="#m9fbdfbfszx.10492">Appendix A. Terms</a><span class="pg" data-for="m9fbdfbfszx.10492">13</span></p></li><li><p><a href="#m9fbdfbfszx.11366">Appendix B. Benchmark method and the figures used</a><span class="pg" data-for="m9fbdfbfszx.11366">13</span></p></li></ul>
+<p><strong>List of figures</strong></p>
+<ul><li><p><a href="#m9fbdfbfszx.13102">Figure 1. System</a><span class="pg" data-for="m9fbdfbfszx.13102">4</span></p></li><li><p><a href="#m9fbdfbfszx.13103">Figure 2. Array configuration</a><span class="pg" data-for="m9fbdfbfszx.13103">4</span></p></li><li><p><a href="#m9fbdfbfszx.13104">Figure 3. One inference, call by call</a><span class="pg" data-for="m9fbdfbfszx.13104">5</span></p></li><li><p><a href="#m9fbdfbfszx.13105">Figure 4. Identical to the reference</a><span class="pg" data-for="m9fbdfbfszx.13105">6</span></p></li><li><p><a href="#m9fbdfbfszx.13106">Figure 5. Time per inference by part</a><span class="pg" data-for="m9fbdfbfszx.13106">7</span></p></li><li><p><a href="#m9fbdfbfszx.13108">Figure 6. NPU time by part, as shares</a><span class="pg" data-for="m9fbdfbfszx.13108">8</span></p></li><li><p><a href="#m9fbdfbfszx.13101">Figure 7. Two inference paths</a><span class="pg" data-for="m9fbdfbfszx.13101">9</span></p></li><li><p><a href="#m9fbdfbfszx.25187">Figure 8. Comparison with Vitis AI on the matching span</a><span class="pg" data-for="m9fbdfbfszx.25187">10</span></p></li><li><p><a href="#m9fbdfbfszx.25639">Figure 9. End to end, image file to detections</a><span class="pg" data-for="m9fbdfbfszx.25639">11</span></p></li></ul>
+<p><strong>List of tables</strong></p>
+<ul><li><p><a href="#m9fbdfbfszx.14246">Table 1. Detection accuracy, mAP50-95 on the 500-image COCO subset</a><span class="pg" data-for="m9fbdfbfszx.14246">6</span></p></li><li><p><a href="#m9fbdfbfszx.14247">Table 2. The standard time figures, final build</a><span class="pg" data-for="m9fbdfbfszx.14247">7</span></p></li><li><p><a href="#m9fbdfbfszx.14248">Table 3. Rates, final build</a><span class="pg" data-for="m9fbdfbfszx.14248">7</span></p></li><li><p><a href="#m9fbdfbfszx.14249">Table 4. IRON bf16 against Vitis AI int8</a><span class="pg" data-for="m9fbdfbfszx.14249">11</span></p></li><li><p><a href="#m9fbdfbfszx.14250">Table A1. Terms used in this summary</a><span class="pg" data-for="m9fbdfbfszx.14250">13</span></p></li></ul>
+</nav><h2 id="m9fbdfbfszx.1367">1. What was built</h2>
+<p>The port is a layer-by-layer compute engine: one fixed configuration of the NPU&#39;s array runs all 98 layers of YOLOv8n, as one NPU call per inference. It builds on an earlier study of synthetic networks on the same NPU [2].</p>
+<ul><li><p><strong>Model and number format.</strong> Ultralytics&#39; released YOLOv8n [3] at 640 × 640. Counted in this work from its exported ONNX graph, it has 98 layers: 63 convolutions and 35 other operations. Each weight is rounded to bf16 and stored as bfp16 blocks, 8 values sharing one exponent; the sums, the bias and the SiLU activation are computed in float32. No retraining and no calibration.</p></li><li><p><strong>Two processes</strong> (Figure 1). The client does the host steps: letterbox, bfp16 conversion, box decoding and NMS. A resident NPU server loads the array configuration once, keeps the weights in one 31.6 MB DDR region, and runs each inference.</p></li><li><p><strong>One fixed array configuration</strong> (Figure 2). One PDI configures 22 of the 32 compute tiles in three groups: stride-1 convolutions (12 tiles, of which 10 work), stride-2 convolutions (8 tiles), and add, max-pool and upsample (2 tiles). Apart from the detection head and the two neck calls beside it, only one group works at a time. Columns 1 and 3 do no work: each call ends by waiting for an end signal from every transfer, and the router could carry those signals only with a free column beside each working one. Two stride-1 tiles never work: each call divides its layer over the tiles by output channels, which needs at most 10 tiles in YOLOv8n; giving them work was tried, and gave no saving.</p></li><li><p><strong>One NPU call per inference</strong> (Figure 3). The 98 layers become 74 layer calls; concats and splits take no call, because their parts are written in place. The 74 calls are joined into one instruction stream and submitted to the NPU as one call.</p></li><li><p><strong>Independent layers at the same time</strong> (Figure 3). Inside the one call, layers that do not depend on each other run side by side on separate array columns. At each scale the head&#39;s box branch and class branch run together, and the head&#39;s first two scales start before the neck has finished, each beside a stride-2 neck call (model.16, model.19).</p></li><li><p><strong>What was written below IRON.</strong> IRON alone, in the version used, cannot vary in-array transfer lengths from one call to the next. A generator therefore rebuilds each call&#39;s DMA tasks directly in the MLIR-AIE dialect, from 4 scalars per call. The kernels are hand-written in C++ with the AIE API and use the hardware&#39;s bfp16 8 × 8 block multiply.</p></li></ul>
+<div class="fblock" id="m9fbdfbfszx.13102"><img class="figimg" src="figures/figure-01.png" alt="Figure 1" width="2280"></div>
+<div class="fblock" id="m9fbdfbfszx.13103"><img class="figimg" src="figures/figure-02.png" alt="Figure 2" width="2280"></div>
+<div class="fblock" id="m9fbdfbfszx.13104"><img class="figimg" src="figures/figure-03.png" alt="Figure 3" width="2280"></div>
+<h2 id="m9fbdfbfszx.2958">2. Identical to the reference: correctness and accuracy</h2>
+<p><strong>On the NPU, the port reproduces its frozen bf16 reference exactly: every tensor of every layer byte for byte, every detection (44,858 of 44,858 on 500 COCO images [6]), and therefore the same accuracy, mAP50-95 0.375.</strong></p>
+<p>The NPU is never compared with FP32. It is compared with a CPU model of its own arithmetic, the bf16 reference, with no tolerance (Figure 4). A bug then shows as any differing byte, and the cost of the number format is measured once, between the reference and FP32. Every timed inference was also checked against the reference&#39;s detections; one difference stops the run.</p>
+<div class="fblock" id="m9fbdfbfszx.13105"><img class="figimg" src="figures/figure-04.png" alt="Figure 4" width="2280"></div>
+<div class="tblock"><div class="tbl"><table><thead><tr><th>Model and where it runs</th><th>mAP50-95</th></tr></thead><tbody><tr><td>YOLOv8n FP32, ONNX on the CPU</td><td>0.372</td></tr><tr><td>YOLOv8n bf16 reference, CPU model of the NPU arithmetic</td><td>0.375</td></tr><tr><td>YOLOv8n bf16 on the NPU through IRON (this work)</td><td>0.375, every detection identical to the reference</td></tr></tbody></table></div><p class="cap" id="m9fbdfbfszx.14246"><b>Table 1. Detection accuracy, mAP50-95 on the 500-image COCO subset.</b> <i>The same 500 images for every row; the port's detections are identical to the reference's.</i></p></div>
+<p>The difference between bf16 and FP32 is smaller than a 500-image subset can resolve: bf16 costs no measurable accuracy here.</p>
+<h2 id="m9fbdfbfszx.4434">3. Speed: the final figures</h2>
+<p><strong>One inference takes 16.30 ms end to end, 61.4 images per second; the 74 layer calls, as one joined NPU call, take 9.68 ms of it, 59 %.</strong> Every output in these sessions was identical to the reference. These are the figures of the laptop&#39;s slower power state, in which the port spent 70 % of its inferences; in the faster state, which the user does not set, the same build takes 15.31 ms and 8.88 ms (58 %). The NPU&#39;s core clock is about the same in both states; data movement is slower in the slower state [7].</p>
+<div class="tblock"><div class="tbl"><table><thead><tr><th>Figure, per inference</th><th>Slower power state (ms)</th><th>Faster power state (ms)</th></tr></thead><tbody><tr><td>NPU chained: the 74 layer calls as one joined NPU call</td><td>9.68</td><td>8.88</td></tr><tr><td>NPU round trip: the chain plus buffers and the process boundary</td><td>10.54</td><td>9.72</td></tr><tr><td>Input conversion + NPU round trip</td><td>12.13</td><td>11.23</td></tr><tr><td>End to end, without reading and decoding the image file</td><td>14.08</td><td>13.14</td></tr><tr><td>End to end, image file to detections</td><td>16.30</td><td>15.31</td></tr></tbody></table></div><p class="cap" id="m9fbdfbfszx.14247"><b>Table 2. The standard time figures, final build.</b> <i>50 sessions, each figure the highest session median in its power state; processes pinned (Appendix B defines each figure).</i></p></div>
+<div class="fblock" id="m9fbdfbfszx.13106"><img class="figimg" src="figures/figure-05.png" alt="Figure 5" width="2280"></div>
+<div class="tblock"><div class="tbl"><table><thead><tr><th>Rate</th><th>Slower power state</th><th>Faster power state</th></tr></thead><tbody><tr><td>Images per second, end to end</td><td>61.4</td><td>65.3</td></tr><tr><td>NPU work rate on the NPU chained time, convolutions only (TOPS)</td><td>0.90</td><td>0.98</td></tr></tbody></table></div><p class="cap" id="m9fbdfbfszx.14248"><b>Table 3. Rates, final build.</b> <i>From the times of Table 2, in both power states; the work rate counts 2 operations per multiply-accumulate, 8.74 billion operations per inference.</i></p></div>
+<p>The host steps take 5.76 ms of the end-to-end time (5.59 ms in the faster state): reading and decoding the image file 2.21 ms, the bfp16 conversion 1.59 ms, and the resize and post-processing 1.95 ms. Passing the input and output between the two processes takes 0.86 ms. In a live test with a 30 frames-per-second webcam, the port kept up with the camera&#39;s full frame rate.</p>
+<h2 id="m9fbdfbfszx.6951">4. Where the NPU time goes</h2>
+<p><strong>Multiply-accumulate work is about 17 % of the NPU time in the slower power state. Data movement inside the array, the set-up of each layer&#39;s transfers, and the fixed work per output row take the rest</strong> (Figure 6).</p>
+<p>The breakdown was measured on the final build after the timing run, by running the joined call in turn with variants whose kernels return at once, and with extra stream operations inserted into its stream; every production output was identical to the reference. It covers the slower power state and is given as shares of the NPU time, so that it applies to the NPU chained time of Table 2, 9.68 ms; in the faster state the shares differ a little (multiply-accumulate work 16 %, data movement 42 %). Measured: the convolution kernels, part of whose work is hidden behind the layers that run side by side; the add, max-pool and upsample kernels, whose work is hidden behind data movement in this state; and the set-up time per stream operation, about 0.07 µs for each of the call&#39;s 26,400 operations. Carried from earlier measurements: the submission of the call and the DDR transfer not hidden by compute. Modelled: the split of the convolution kernels into fixed and multiply-accumulate work, the core loop between rows, and the split of the data movement.</p>
+<div class="fblock" id="m9fbdfbfszx.13108"><img class="figimg" src="figures/figure-06.png" alt="Figure 6" width="2280"></div>
+<p>The array mostly waits. Apart from the detection head and the two neck calls beside it, only one tile group works at a time, and narrow layers are limited by a fixed cost per kernel-function call (about 962 cycles per 3 × 3 call that do not depend on the input channels), not by waiting for data.</p>
+<h2 id="m9fbdfbfszx.5819">5. Comparison with Vitis AI int8</h2>
+<p><strong>Before the comparison: the two paths are not a like-for-like pair.</strong> They differ in number format (bf16 against int8); in model (the int8 model&#39;s quantiser replaced SiLU with HardSwish); in how they were built (a vendor compiler over the whole graph, against hand-written layer calls); and in process layout (one process, against a client and an NPU server). In this work Vitis AI&#39;s NPU work was timed only as one node from the host, with ONNX Runtime&#39;s profiler, so its NPU time is an upper bound; AMD&#39;s own profiling tools were not used on it. The comparison therefore uses the closest matching span, and the end-to-end times compare host code, not the NPU paths.</p>
+<p><strong>On matching work, the vendor&#39;s int8 path is 2.6 ms faster (2.1 ms in the faster power state); the bf16 port is 0.079 mAP more accurate.</strong></p>
+<p>Figure 7 sets the port beside the vendor&#39;s path: AMD&#39;s Vitis AI [5] running the same YOLOv8n weights, quantised to int8 by the vendor&#39;s quantiser, timed in turns with the port in the same 50 sessions.</p>
+<div class="fblock" id="m9fbdfbfszx.13101"><img class="figimg" src="figures/figure-07.png" alt="Figure 7" width="2280"></div>
+<p>The two paths were timed in turns in the same 50 sessions, with the NPU checked free before each side started. Vitis AI&#39;s inference call contains its own input and output conversions, but no image read, letterbox, box decoding or NMS; it took 9.54 ms (9.10 ms in the faster power state). The matching figure for the port, the input conversion plus the NPU round trip, took 12.13 ms (11.23 ms): 2.59 ms (27 %) longer, 2.13 ms (23 %) in the faster state, and longer in all 50 sessions (Figure 8). The port&#39;s span is the more loaded of the two: it includes normalising the input, which on the Vitis AI path is done before its timed call, and 0.86 ms for passing data between the port&#39;s two processes, a cost Vitis AI, running in one process, does not have.</p>
+<p>ONNX Runtime&#39;s profiler splits Vitis AI&#39;s inference call by part, in 2 further sessions: the fused node that holds the whole compiled model on the NPU takes 8.92 ms (8.54 ms), its quantize and dequantize nodes on the CPU 0.40 ms (0.34 ms), and ONNX Runtime about 0.2 ms around them. The fused node is timed on the host, so 8.92 ms is an upper bound on Vitis AI&#39;s NPU time; against the port&#39;s NPU chained time, 9.68 ms (8.88 ms), the port&#39;s NPU side is at least 0.76 ms (0.34 ms) longer. Most of the 2.59 ms is the port&#39;s input conversion (1.59 ms, against 0.40 ms) and its process boundary (0.86 ms, against about 0.2 ms).</p>
+<div class="fblock" id="m9fbdfbfszx.25187"><img class="figimg" src="figures/figure-08.png" alt="Figure 8" width="2280"></div>
+<p>From image file to detections the port takes 16.30 ms (15.31 ms) and the Vitis AI pipeline used here 23.54 ms (22.19 ms; Figure 9). That difference is in host code, not in the NPU paths: the Vitis AI pipeline&#39;s box decoding and NMS is uncompiled NumPy (7.76 ms), while the port&#39;s is compiled.</p>
+<div class="fblock" id="m9fbdfbfszx.25639"><img class="figimg" src="figures/figure-09.png" alt="Figure 9" width="2280"></div>
+<div class="tblock"><div class="tbl"><table><thead><tr><th>Per inference, same sessions; faster power state in brackets</th><th>IRON bf16 (this work)</th><th>Vitis AI int8</th></tr></thead><tbody><tr><td>Matching span (ms)</td><td>12.13 (11.23)</td><td>9.54 (9.10)</td></tr><tr><td>Work rate on the matching span (TOPS)</td><td>0.72 (0.78)</td><td>0.92 (0.96)</td></tr><tr><td>Share of the NPU&#39;s rated 50 TOPS (int8)</td><td>1.4 % (1.6 %)</td><td>1.8 % (1.9 %)</td></tr><tr><td>End to end, image file to detections (ms; host code differs)</td><td>16.30 (15.31)</td><td>23.54 (22.19)</td></tr><tr><td>mAP50-95, 500 COCO images</td><td>0.375, every detection identical to the reference</td><td>0.296, the same detections as this model on the CPU</td></tr></tbody></table></div><p class="cap" id="m9fbdfbfszx.14249"><b>Table 4. IRON bf16 against Vitis AI int8.</b> <i>The same 50 sessions, faster power state in brackets; the work rate counts the same 8.74 billion convolution operations on both sides.</i></p></div>
+<p>On accuracy the port is ahead (Table 4): the vendor&#39;s int8 model scores 0.079 lower, about the gap between YOLOv8n and the next larger model, YOLOv8s. Its scales were calibrated on 200 webcam frames and its quantiser replaced every SiLU with HardSwish, so the gap is this model&#39;s, not a measure of int8 in general.</p>
+<h2 id="m9fbdfbfszx.7942">6. Key findings</h2>
+<ol><li><p><strong>Exact results needed hardware rules found on the way.</strong> Two of them give silent wrong values that only an exact check exposes: an aligned vector load from an unaligned address reads from the aligned address below, and the rounding mode is state inherited from earlier code. The third, a lock acquire of 0, hangs the call. Every kernel now sets its rounding mode and uses unaligned loads for computed offsets, and the lock counts are constants.</p></li><li><p><strong>IRON alone was not enough; the per-call layer below it made the port possible.</strong> One fixed configuration runs 98 different layers because each call&#39;s DMA tasks are written in the MLIR-AIE dialect and computed from 4 scalars.</p></li><li><p><strong>The per-call cost lives in the driver and firmware.</strong> Started one at a time, each call costs about 90 µs outside the array. Submitting the calls as one run list hides most of it; joining all 74 calls into one NPU call removes a further 10–12 µs per layer boundary.</p></li><li><p><strong>Narrow layers are limited by a fixed per-row cost, not by data.</strong> Spreading the narrowest layers over more array columns and trimming the per-row work of the kernels shortened exactly these calls.</p></li><li><p><strong>In this port, compute is not the limit; moving data inside the array is.</strong> In the final build, multiply-accumulate work is about 17 % of the NPU time. Data movement between the memory tiles and the compute tiles is the largest part, about 43 %, and set-up about 21 %, while DDR transfer not hidden by compute is at most 0.03 ms.</p></li><li><p><strong>Independent layers can run at the same time inside one NPU call.</strong> Locks and barrier releases act per tile, and completion tokens stay in their own array column, so two layer calls on separate array columns can share one instruction stream without interfering. Running the detection head&#39;s box and class branches this way saved 0.62 ms of NPU time per inference; starting the head&#39;s first two scales early, each beside a stride-2 neck call, saved a further 0.21–0.31 ms.</p></li><li><p><strong>Tile memory decides placement.</strong> Program memory per tile (16 KB) and the memory tiles&#39; DMA channels decided where each group sits; separate tile groups were faster than merged kernels.</p></li><li><p><strong>A configured tile is not a working tile.</strong> The stride-1 group is configured with 12 tiles, but its calls were generated for at most 10. Using the two idle tiles gives almost nothing, because most of this port&#39;s NPU time goes to data movement inside the array, set-up and per-row work, which more tiles do not shorten (finding 5).</p></li><li><p><strong>On matching work, the vendor&#39;s int8 path is faster; the bf16 port is more accurate.</strong> 12.13 ms against 9.54 ms on the matching span (2.1 ms apart in the faster power state), most of it the port&#39;s input conversion and process boundary; on the NPU itself the port is at least 0.76 ms longer (0.34 ms). mAP50-95 0.375 against 0.296.</p></li></ol>
+<h2 id="m9fbdfbfszx.9684">Full report and references</h2>
+<p>The full report gives the design in detail, the hardware and toolchain rules found, each of the 17 stages with its own measurements, the per-call times, and the studies made after the final build [1].</p>
+<ol><li><p>D. Ryndine, &quot;YOLOv8n on the AMD XDNA 2 NPU through IRON: a working bf16 port&quot;, full report, 2026.</p></li><li><p>D. Ryndine, &quot;Getting the TOPS: AMD XDNA 2 NPU on a Windows laptop, Vitis AI vs IRON&quot;, technical report, 2026. <a href="https://ghost-intuit.github.io/xdna2-npu-experiments/getting-the-tops/">ghost-intuit.github.io/xdna2-npu-experiments/getting-the-tops</a></p></li><li><p>Ultralytics, YOLOv8 models and documentation. <a href="https://docs.ultralytics.com/models/yolov8/">docs.ultralytics.com/models/yolov8</a></p></li><li><p>AMD, MLIR-AIE and IRON. <a href="https://github.com/Xilinx/mlir-aie">github.com/Xilinx/mlir-aie</a></p></li><li><p>AMD, Ryzen AI Software: Vitis AI execution provider and the Quark quantiser. <a href="https://ryzenai.docs.amd.com/">ryzenai.docs.amd.com</a></p></li><li><p>T.-Y. Lin et al., &quot;Microsoft COCO: Common Objects in Context&quot;, ECCV 2014. <a href="https://arxiv.org/abs/1405.0312">arxiv.org/abs/1405.0312</a></p></li><li><p>D. Ryndine, &quot;AMD XDNA 2 NPU on a laptop: power state, clocks and inference-time variability&quot;, technical report, 2026. <a href="https://ghost-intuit.github.io/xdna2-npu-experiments/npu-power-state/">ghost-intuit.github.io/xdna2-npu-experiments/npu-power-state</a></p></li></ol>
+<h2 id="m9fbdfbfszx.10492">Appendix A. Terms</h2>
+<div class="tblock"><div class="tbl"><table><thead><tr><th>Term</th><th>Meaning in this summary</th></tr></thead><tbody><tr><td>Arena</td><td>The one DDR buffer, 31.6 MB, that holds every tensor and every layer&#39;s weights in 124 fixed slots: 3.7 MB of weights in 63 slots and 27.9 MB of activations in 61 slots, one per intermediate tensor, never reused</td></tr><tr><td>Array column</td><td>One of the NPU&#39;s 8 columns of tiles: a shim tile (DDR interface), a memory tile and 4 compute tiles</td></tr><tr><td>bf16, bfp16</td><td>bf16: 16-bit floating point with float32&#39;s 8-bit exponent. bfp16: blocks of 8 values sharing one exponent byte, 9 bytes per block</td></tr><tr><td>Layer call</td><td>One instruction stream run by the NPU&#39;s controller, running one layer on one tile group; 74 per inference</td></tr><tr><td>Joined call</td><td>The 74 layer calls of one inference, joined into one stream and submitted as one NPU call</td></tr><tr><td>PDI</td><td>The binary that configures the whole array once: tiles, routes, DMA channels, locks, core programs</td></tr><tr><td>Tile group</td><td>A fixed set of compute tiles in the PDI that runs one family of kernels</td></tr></tbody></table></div><p class="cap" id="m9fbdfbfszx.14250"><b>Table A1. Terms used in this summary.</b> <i>Each term with the meaning it has in this summary.</i></p></div>
+<h2 id="m9fbdfbfszx.11366">Appendix B. Benchmark method and the figures used</h2>
+<ul><li><p><strong>One set of figures.</strong> Every standard time and rate in this summary comes from one overnight run on the final build: 50 sessions in which the port and Vitis AI ran in turns, every output checked against its reference. Each inference is sorted into the laptop&#39;s slower or faster power state by its time, and each figure is the highest of the session medians in its state (the median of each session, taking the highest of the 50). The slower state gives the figure to rely on; the faster state, in brackets, the best observed. The NPU-time breakdown of section 4 was measured on the same build after that run, in further sessions, in the slower state, and is given as shares; Vitis AI&#39;s inference call was split by part with ONNX Runtime&#39;s profiler in 2 further sessions.</p></li><li><p><strong>The standard figures.</strong> <em>NPU chained</em>: from the input synchronised to the device to the wait for the joined call returning, timed in the NPU server. <em>NPU round trip</em>: the chained time plus the input and output copies, the device synchronisations and the pipe between the processes, timed in the client. <em>Input conversion + NPU round trip</em>: the figure comparable with Vitis AI&#39;s inference call. <em>End to end</em>: from reading the image to the detection list, timed in the client; also given without the image file&#39;s read and decode. <em>NPU work rate</em>: convolution operations (2 per multiply-accumulate, 8.74 billion per inference) over the time.</p></li><li><p><strong>Conditions.</strong> NPU in Performance power mode, with NPU Turbo and Windows&#39; best-performance slider off; both processes pinned to the four Zen 5 cores; the server resident; no reboot during the run. In each session the two paths ran in turns of 150 inferences on the same five test images, the first 25 of each turn set aside: 3,000 timed inferences of each path per session, and all 3,600 outputs checked against the reference.</p></li><li><p><strong>Variation.</strong> Timing on this laptop is not exactly repeatable, because the processor shares clocks, memory and power across its parts. The NPU-only time also depends on a power state the laptop chooses, not the user: the port spent 70 % of its inferences in the slower state. The NPU&#39;s core clock stays at about 1,800 MHz in both states; data movement is slower in the slower state [7]. Any difference in output stops the run.</p></li></ul>
+
+</article>
+<section class="howcite noprint" id="cite">
+  <h2>How to cite this report</h2>
+  <div class="cite">
+    <h3>Summary of key results, version 0.34 (DRAFT)</h3>
+    <div class="fmt"><span>APA</span><button type="button" data-copy="report-apa">Copy</button></div>
+    <p class="apa" id="report-apa">Ryndine, D. (2026). <em>YOLOv8n on the AMD XDNA 2 NPU through IRON: a working bf16 port - summary of key results</em> (Version 0.34 (DRAFT)) [Technical report]. Ghost Intuit Pty Ltd. https://ghost-intuit.github.io/xdna2-npu-experiments/yolov8n-iron-summary/</p>
+    <div class="fmt"><span>BibTeX</span><button type="button" data-copy="report-bib">Copy</button></div>
+    <pre id="report-bib">@techreport{ryndine2026yolov8niron,
+  author      = {Ryndine, Denis},
+  title       = {{YOLOv8n} on the {AMD} {XDNA} 2 {NPU} through {IRON}: a working bf16 port -- summary of key results},
+  institution = {Ghost Intuit Pty Ltd},
+  type        = {Technical report},
+  year        = {2026},
+  month       = oct,
+  note        = {Version 0.34 (DRAFT)},
+  url         = {https://ghost-intuit.github.io/xdna2-npu-experiments/yolov8n-iron-summary/}
+}</pre>
+  </div>
+</section>
+<footer>
+  <p>© 2026 Denis Ryndine, Ghost Intuit Pty Ltd. This report is licensed under
+  <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>: you may reuse it with
+  attribution and a link to this page. To cite it, see <a href="#cite">How to cite this report</a>.</p>
+  <p><a href="../">xdna2-npu-experiments home</a> · <a href="https://github.com/ghost-intuit/xdna2-npu-experiments">Source on GitHub</a></p>
+</footer>
+<script>
+document.querySelectorAll('.cite button[data-copy]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var text = document.getElementById(b.getAttribute('data-copy')).innerText.trim();
+    var done = function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 1500); };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+    } else { fallback(text); done(); }
+  });
+});
+function fallback(text) {
+  var t = document.createElement('textarea'); t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+  document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (e) {}
+  document.body.removeChild(t);
+}
+</script>
+<script data-goatcounter="https://ghost-intuit.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
