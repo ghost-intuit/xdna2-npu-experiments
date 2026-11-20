@@ -129,6 +129,12 @@
       A summary of a working port of YOLOv8n to the NPU with IRON and MLIR-AIE, in bf16: outputs that
       match its bf16 reference byte for byte, 16.30 ms end to end, and a comparison with AMD's Vitis AI
       running the same model in int8.</li>
+    <li><a href="yolo26n-iron-report/">YOLO26n on the AMD XDNA 2 NPU through IRON: a bf16 port compared with AMD's int8 design</a>
+      (<a href="yolo26n-iron-report/yolo26n-iron-report-v1.24.pdf">PDF</a>).
+      An experimental report on a bf16 port of YOLO26n to the NPU with IRON and MLIR-AIE, compared with
+      AMD's int8 YOLO26n design from the same MLIR-AIE and IRON repository: why the int8 layout does not
+      carry over to bf16, a design that runs in six array configurations, outputs that match the bf16
+      reference byte for byte, and the speed of both at batch 1 and batch 8.</li>
     <li><a href="yolo-architecture/yolo_architecture.html">YOLOv8n architecture and per-block operations</a>
       (<a href="yolo-architecture/yolo_ops_details.html">operations in detail</a>).
       An interactive diagram of the YOLOv8n object detector at a 640×640 input, with a page for each
@@ -201,6 +207,22 @@
   month       = oct,
   note        = {Version 0.37 (DRAFT)},
   url         = {https://ghost-intuit.github.io/xdna2-npu-experiments/yolov8n-iron-summary/}
+}</pre>
+  </div>
+  <div class="cite">
+    <h3>The YOLO26n IRON report</h3>
+    <div class="fmt"><span>APA</span><button type="button" data-copy="y26-apa">Copy</button></div>
+    <p class="apa" id="y26-apa">Ryndine, D. (2026). <em>YOLO26n on the AMD XDNA 2 NPU through IRON: a bf16 port compared with AMD's int8 design</em> (Version 1.24 (DRAFT)) [Technical report]. Ghost Intuit Pty Ltd. https://ghost-intuit.github.io/xdna2-npu-experiments/yolo26n-iron-report/</p>
+    <div class="fmt"><span>BibTeX</span><button type="button" data-copy="y26-bib">Copy</button></div>
+    <pre id="y26-bib">@techreport{ryndine2026yolo26n,
+  author      = {Ryndine, Denis},
+  title       = {{YOLO26n} on the {AMD} {XDNA} 2 {NPU} through {IRON}: a bf16 port compared with {AMD}'s int8 design},
+  institution = {Ghost Intuit Pty Ltd},
+  type        = {Technical report},
+  year        = {2026},
+  month       = nov,
+  note        = {Version 1.24 (DRAFT)},
+  url         = {https://ghost-intuit.github.io/xdna2-npu-experiments/yolo26n-iron-report/}
 }</pre>
   </div>
   <div class="cite">
